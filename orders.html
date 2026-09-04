@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders — RSA Meat Trading</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <h2 class="logo">RSA Meat Trading</h2>
+      <nav class="side-nav">
+        <a href="dashboard.html">📊 Dashboard</a>
+        <a href="orders.html" class="active">📦 Orders</a>
+        <a href="customers.html">👤 Customers</a>
+        <a href="#">📈 Reports</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="index.html" class="logout-link">↩ Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="top-header">
+        <h1>Order Management</h1>
+        <div class="top-search"><input type="text" id="searchInput" placeholder="Search orders..."></div>
+      </div>
+
+      <div class="filter-bar">
+        <span>Status:</span>
+        <select id="statusFilter">
+          <option value="All">All Orders</option>
+          <option value="Pending">Pending</option>
+          <option value="Preparing">Preparing</option>
+          <option value="Ready">Ready</option>
+          <option value="Completed">Completed</option>
+        </select>
+        <button class="btn primary-btn" style="margin-left:auto;" onclick="location.href='create-order.html'">+ New Order</button>
+      </div>
+
+      <div class="card">
+        <h3>Orders</h3>
+        <table class="data-table">
+          <thead>
+            <tr><th>Order #</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="ordersBody">
+            <tr><td colspan="6" style="text-align:center; color:#888; padding:2rem;">📭 No orders found.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+  <script src="js/script.js"></script>
+</body>
+</html>
