@@ -11,10 +11,10 @@
     <aside class="sidebar">
       <h2 class="logo">RSA Meat Trading</h2>
       <nav class="side-nav">
-        <a href="dashboard.html">📊 Dashboard</a>
-        <a href="orders.html">📦 Orders</a>
-        <a href="customers.html" class="active">👤 Customers</a>
-        <a href="#">📈 Reports</a>
+        <a href="dashboard.html"> Dashboard</a>
+        <a href="orders.html"> Orders</a>
+        <a href="customers.html" class="active"> Customers</a>
+        <a href="reports.html"> Reports</a>
       </nav>
       <div class="sidebar-bottom">
         <a href="index.html" class="logout-link">↩ Logout</a>
@@ -24,13 +24,95 @@
     <main class="main-content">
       <div class="top-header">
         <h1>Customers</h1>
-        <div class="top-search"><input type="text" placeholder="Search customers..."></div>
+        <div class="top-search"><input type="text" id="customerSearch" placeholder="Search customers..."></div>
       </div>
+
       <div class="card">
         <h3>Customer List</h3>
-        <p style="color:#888; text-align:center; padding:2rem;">Customer records will appear here once orders are created.</p>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Customer Name / Company</th>
+              <th>Contact Person</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Address</th>
+              <th>Total Orders</th>
+            </tr>
+          </thead>
+          <tbody id="customersBody">
+            <tr>
+              <td colspan="6" style="text-align:center; color:#888; padding:2rem;">No customer records found. Create orders to see customers here.</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </main>
   </div>
+
+  <script>
+    // Get orders from storage
+    function getOrders() { return JSON.parse(localStorage.getItem('rsaOrders') || '[]'); }
+
+    // Render unique customers
+    function renderCustomers(searchTerm = '') {
+      const orders = getOrders();
+      const tbody = document.getElementById('customersBody');
+      
+      // Group orders by customer (company name)
+      const customerMap = {};
+      orders.forEach(order => {
+        const key = order.company.toLowerCase().trim();
+        if(!customerMap[key]) {
+          customerMap[key] = {
+            company: order.company,
+            contact: order.contact || '-',
+            phone: order.phone || '-',
+            email: order.email || '-',
+            address: order.address || '-',
+            orderCount: 0
+          };
+        }
+        customerMap[key].orderCount++;
+      });
+
+      // Convert to array and filter by search
+      let customers = Object.values(customerMap);
+      if(searchTerm) {
+        const term = searchTerm.toLowerCase();
+        customers = customers.filter(c => 
+          c.company.toLowerCase().includes(term) ||
+          c.contact.toLowerCase().includes(term) ||
+          c.phone.includes(term)
+        );
+      }
+
+      // Display
+      if(customers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888; padding:2rem;">No customer records found. Create orders to see customers here.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = customers.map(c => `
+        <tr>
+          <td><strong>${c.company}</strong></td>
+          <td>${c.contact}</td>
+          <td>${c.phone}</td>
+          <td>${c.email}</td>
+          <td>${c.address}</td>
+          <td>${c.orderCount}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Load on page ready
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCustomers();
+      // Search functionality
+      document.getElementById('customerSearch')?.addEventListener('input', e => {
+        renderCustomers(e.target.value);
+      });
+    });
+  </script>
 </body>
 </html>
