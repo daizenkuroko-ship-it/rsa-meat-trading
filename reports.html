@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports & Analytics — RSA Meat Trading</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <h2 class="logo">RSA Meat Trading</h2>
+      <nav class="side-nav">
+        <a href="dashboard.html"> Dashboard</a>
+        <a href="orders.html"> Orders</a>
+        <a href="customers.html"> Customers</a>
+        <a href="reports.html" class="active"> Reports</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="index.html" class="logout-link">↩ Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="top-header">
+        <h1>Reports & Analytics</h1>
+      </div>
+
+      <!-- Summary Statistics -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-label">Total Orders</span>
+          <span class="stat-value" id="repTotalOrders">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Total Revenue</span>
+          <span class="stat-value" id="repTotalRevenue">₱0.00</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Unique Customers</span>
+          <span class="stat-value" id="repCustomers">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Completed Orders</span>
+          <span class="stat-value" id="repCompleted">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Pending / Active</span>
+          <span class="stat-value" id="repActive">0</span>
+        </div>
+      </div>
+
+      <div class="content-grid" style="margin-top: 1.5rem;">
+        <!-- Status Breakdown -->
+        <div class="card">
+          <h3>Order Status Breakdown</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Count</th>
+                <th>Percentage</th>
+              </tr>
+            </thead>
+            <tbody id="statusBreakdown">
+              <tr><td colspan="3" style="color:#888; text-align:center;">No data available.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Top Customers -->
+        <div class="card">
+          <h3>Top Customers (Most Orders)</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Orders</th>
+                <th>Total Amount</th>
+              </tr>
+            </thead>
+            <tbody id="topCustomers">
+              <tr><td colspan="3" style="color:#888; text-align:center;">No customer data yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Monthly Summary -->
+      <div class="card" style="margin-top: 1.5rem;">
+        <h3>Monthly Summary</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Orders</th>
+              <th>Total Sales</th>
+            </tr>
+          </thead>
+          <tbody id="monthlySummary">
+            <tr><td colspan="3" style="color:#888; text-align:center;">No monthly data available.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Get orders from storage
+    function getOrders() {
+      return JSON.parse(localStorage.getItem('rsaOrders') || '[]');
+    }
+
+    // Generate all reports
+    function generateReports() {
+      const orders = getOrders();
+      
+      if(orders.length === 0) {
+        document.getElementById('repTotalOrders').textContent = '0';
+        document.getElementById('repTotalRevenue').textContent = '₱0.00';
+        document.getElementById('repCustomers').textContent = '0';
+        document.getElementById('repCompleted').textContent = '0';
+        document.getElementById('repActive').textContent = '0';
+        return;
+      }
+
+      // 1. Summary Stats
+      const totalOrders = orders.length;
+      const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+      const completed = orders.filter(o => o.status === 'Completed').length;
+      const active = totalOrders - completed;
+
+      // Unique customers
+      const customerMap = {};
+      orders.forEach(o => {
+        const name = (o.company || 'Unknown').toLowerCase().trim();
+        if(!customerMap[name]) {
+          customerMap[name] = { name: o.company, orders: 0, totalAmount: 0 };
+        }
+        customerMap[name].orders++;
+        customerMap[name].totalAmount += o.total || 0;
+      });
+      const uniqueCustomers = Object.keys(customerMap).length;
+
+      // Update summary
+      document.getElementById('repTotalOrders').textContent = totalOrders;
+      document.getElementById('repTotalRevenue').textContent = '₱' + totalRevenue.toFixed(2);
+      document.getElementById('repCustomers').textContent = uniqueCustomers;
+      document.getElementById('repCompleted').textContent = completed;
+      document.getElementById('repActive').textContent = active;
+
+      // 2. Status Breakdown
+      const statusCounts = { Pending:0, Preparing:0, Ready:0, Completed:0 };
+      orders.forEach(o => {
+        if(statusCounts[o.status] !== undefined) statusCounts[o.status]++;
+      });
+      const statusTbody = document.getElementById('statusBreakdown');
+      statusTbody.innerHTML = Object.entries(statusCounts).map(([status, count]) => {
+        const pct = totalOrders > 0 ? ((count / totalOrders) * 100).toFixed(1) : 0;
+        return `<tr>
+          <td><span class="status ${status.toLowerCase()}">${status}</span></td>
+          <td>${count}</td>
+          <td>${pct}%</td>
+        </tr>`;
+      }).join('');
+
+      // 3. Top Customers
+      const topCust = Object.values(customerMap).sort((a, b) => b.orders - a.orders).slice(0, 5);
+      const custTbody = document.getElementById('topCustomers');
+      if(topCust.length === 0) {
+        custTbody.innerHTML = '<tr><td colspan="3" style="color:#888; text-align:center;">No customer data available.</td></tr>';
+      } else {
+        custTbody.innerHTML = topCust.map(c => `
+          <tr>
+            <td><strong>${c.name}</strong></td>
+            <td>${c.orders}</td>
+            <td>₱${c.totalAmount.toFixed(2)}</td>
+          </tr>
+        `).join('');
+      }
+
+      // 4. Monthly Summary
+      const monthMap = {};
+      orders.forEach(o => {
+        if(!o.rawDate) return;
+        const d = new Date(o.rawDate);
+        const month = d.toLocaleDateString('en-US', { year:'numeric', month:'long' });
+        if(!monthMap[month]) monthMap[month] = { count:0, total:0 };
+        monthMap[month].count++;
+        monthMap[month].total += o.total || 0;
+      });
+      const monthTbody = document.getElementById('monthlySummary');
+      if(Object.keys(monthMap).length === 0) {
+        monthTbody.innerHTML = '<tr><td colspan="3" style="color:#888; text-align:center;">No monthly data available.</td></tr>';
+      } else {
+        monthTbody.innerHTML = Object.entries(monthMap).map(([month, data]) => `
+          <tr>
+            <td>${month}</td>
+            <td>${data.count}</td>
+            <td>₱${data.total.toFixed(2)}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    // Run when page loads
+    document.addEventListener('DOMContentLoaded', generateReports);
+  </script>
+</body>
+</html>
