@@ -11,10 +11,10 @@
     <aside class="sidebar">
       <h2 class="logo">RSA Meat Trading</h2>
       <nav class="side-nav">
-        <a href="dashboard.html">📊 Dashboard</a>
-        <a href="orders.html" class="active">📦 Orders</a>
-        <a href="customers.html">👤 Customers</a>
-        <a href="#">📈 Reports</a>
+        <a href="dashboard.html"> Dashboard</a>
+        <a href="orders.html" class="active"> Orders</a>
+        <a href="customers.html"> Customers</a>
+        <a href="reports.html"> Reports</a>
       </nav>
       <div class="sidebar-bottom">
         <a href="index.html" class="logout-link">↩ Logout</a>
@@ -43,10 +43,21 @@
         <h3>Orders</h3>
         <table class="data-table">
           <thead>
-            <tr><th>Order #</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th><th>Actions</th></tr>
+            <tr>
+              <th>Order #</th>
+              <th>Customer</th>
+              <th>Date</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
           </thead>
           <tbody id="ordersBody">
-            <tr><td colspan="6" style="text-align:center; color:#888; padding:2rem;">📭 No orders found.</td></tr>
+            <tr>
+              <td colspan="6" style="text-align:center; color:#888; padding:2rem;">
+                📭 No orders found. <a href="create-order.html" style="color:#990033;">Create New Order →</a>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
