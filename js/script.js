@@ -20,7 +20,7 @@ function checkAuth() {
 }
 if(!window.location.pathname.endsWith('index.html')) checkAuth();
 
-// ===== ORDERS STORAGE (LocalStorage — pansamantalang database) =====
+// ===== ORDERS STORAGE (LocalStorage) =====
 function getOrders() { return JSON.parse(localStorage.getItem('rsaOrders') || '[]'); }
 function saveOrders(list) { localStorage.setItem('rsaOrders', JSON.stringify(list)); }
 
@@ -43,7 +43,7 @@ function renderDashboard() {
   const tbody = document.getElementById('recentOrdersBody');
   if(!tbody) return;
   if(orders.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888; padding:1.5rem;">📭 No orders yet. <a href="create-order.html" style="color:#990033;">Create one →</a></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888; padding:1.5rem;">No orders yet. <a href="create-order.html" style="color:#990033;">Create one →</a></td></tr>';
     return;
   }
   tbody.innerHTML = orders.slice(0,5).map(o => `
@@ -51,35 +51,71 @@ function renderDashboard() {
       <td>${o.orderNo}</td>
       <td>${o.company}</td>
       <td>${o.date}</td>
-      <td>$${o.total.toFixed(2)}</td>
+      <td>₱${o.total.toFixed(2)}</td>
       <td><span class="status ${o.status.toLowerCase()}">${o.status}</span></td>
-      <td><a href="orders.html" class="icon-btn">👁</a></td>
+      <td><a href="orders.html" class="icon-btn">View</a></td>
     </tr>
   `).join('');
 }
 if(window.location.pathname.endsWith('dashboard.html')) renderDashboard();
 
-// ===== ORDERS LIST =====
+// ===== ORDERS LIST WITH EDITABLE STATUS =====
 function renderOrders(filter='All') {
   let orders = getOrders();
   if(filter !== 'All') orders = orders.filter(o => o.status === filter);
   const tbody = document.getElementById('ordersBody');
   if(!tbody) return;
+
   if(orders.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888; padding:2rem;">📭 No orders found. <a href="create-order.html" style="color:#990033;">Create New Order →</a></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888; padding:2rem;">No orders found. <a href="create-order.html" style="color:#990033;">Create New Order →</a></td></tr>';
     return;
   }
+
   tbody.innerHTML = orders.map(o => `
-    <tr>
+    <tr data-order-id="${o.id}">
       <td>${o.orderNo}</td>
       <td>${o.company}</td>
       <td>${o.date}</td>
-      <td>$${o.total.toFixed(2)}</td>
-      <td><span class="status ${o.status.toLowerCase()}">${o.status}</span></td>
-      <td><a href="create-order.html" class="icon-btn">✏</a></td>
+      <td>₱${o.total.toFixed(2)}</td>
+      <td>
+        <select class="status-select" onchange="updateOrderStatus(${o.id}, this.value)">
+          <option value="Pending" ${o.status==='Pending'?'selected':''}>Pending</option>
+          <option value="Preparing" ${o.status==='Preparing'?'selected':''}>Preparing</option>
+          <option value="Ready" ${o.status==='Ready'?'selected':''}>Ready</option>
+          <option value="Completed" ${o.status==='Completed'?'selected':''}>Completed</option>
+        </select>
+      </td>
+      <td>
+        <button class="icon-btn" title="Delete Order" onclick="deleteOrder(${o.id})">Delete</button>
+      </td>
     </tr>
   `).join('');
 }
+
+// ===== UPDATE ORDER STATUS =====
+function updateOrderStatus(orderId, newStatus) {
+  const orders = getOrders();
+  const orderIndex = orders.findIndex(o => o.id === orderId);
+  if(orderIndex !== -1) {
+    orders[orderIndex].status = newStatus;
+    saveOrders(orders);
+    alert('Status updated to: ' + newStatus);
+    renderOrders(document.getElementById('statusFilter')?.value || 'All');
+  }
+}
+
+// ===== DELETE ORDER =====
+function deleteOrder(orderId) {
+  if(confirm('Are you sure you want to delete this order?')) {
+    let orders = getOrders();
+    orders = orders.filter(o => o.id !== orderId);
+    saveOrders(orders);
+    alert('Order deleted.');
+    renderOrders(document.getElementById('statusFilter')?.value || 'All');
+  }
+}
+
+// ===== Re-render Orders on Filter Change =====
 document.getElementById('statusFilter')?.addEventListener('change', e => renderOrders(e.target.value));
 if(window.location.pathname.endsWith('orders.html')) renderOrders();
 
@@ -95,9 +131,9 @@ function recalcAll() {
   });
   const tax = subtotal * 0.05;
   const gt = subtotal + tax;
-  const stEl = document.getElementById('subtotal'); if(stEl) stEl.textContent = '$' + subtotal.toFixed(2);
-  const txEl = document.getElementById('tax'); if(txEl) txEl.textContent = '$' + tax.toFixed(2);
-  const gtEl = document.getElementById('grandTotal'); if(gtEl) gtEl.textContent = '$' + gt.toFixed(2);
+  const stEl = document.getElementById('subtotal'); if(stEl) stEl.textContent = '₱' + subtotal.toFixed(2);
+  const txEl = document.getElementById('tax'); if(txEl) txEl.textContent = '₱' + tax.toFixed(2);
+  const gtEl = document.getElementById('grandTotal'); if(gtEl) gtEl.textContent = '₱' + gt.toFixed(2);
 }
 
 document.getElementById('addRow')?.addEventListener('click', () => {
@@ -109,19 +145,22 @@ document.getElementById('addRow')?.addEventListener('click', () => {
     <td><input type="number" class="qty" step="0.01" min="0" required></td>
     <td><input type="number" class="price" step="0.01" min="0" required></td>
     <td class="row-subtotal">0.00</td>
-    <td><button type="button" class="remove-btn">✕</button></td>
+    <td><button type="button" class="remove-btn">Remove</button></td>
   `;
   tbody.appendChild(row);
   row.querySelector('.qty').addEventListener('input', recalcAll);
   row.querySelector('.price').addEventListener('input', recalcAll);
-  row.querySelector('.remove-btn').addEventListener('click', () => { if(document.querySelectorAll('.item-row').length>1){row.remove(); recalcAll();} });
+  row.querySelector('.remove-btn').addEventListener('click', () => { 
+    if(document.querySelectorAll('.item-row').length > 1) { row.remove(); recalcAll(); }
+  });
 });
 
 document.addEventListener('input', e => {
   if(e.target.classList.contains('qty') || e.target.classList.contains('price')) recalcAll();
 });
+
 document.addEventListener('click', e => {
-  if(e.target.classList.contains('remove-btn') && document.querySelectorAll('.item-row').length>1) {
+  if(e.target.classList.contains('remove-btn') && document.querySelectorAll('.item-row').length > 1) {
     e.target.closest('.item-row').remove(); recalcAll();
   }
 });
@@ -152,6 +191,6 @@ document.getElementById('orderForm')?.addEventListener('submit', e => {
   };
   orders.unshift(newOrder);
   saveOrders(orders);
-  alert('✅ Order saved successfully!');
+  alert('Order saved successfully!');
   window.location.href = 'orders.html';
 });
