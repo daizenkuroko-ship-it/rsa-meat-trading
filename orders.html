@@ -1,68 +1,972 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Orders — RSA Meat Trading</title>
-  <link rel="stylesheet" href="css/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Orders - RSA Meat Trading</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/auth-guard.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f5f5;
+            color: #222;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+
+            width: 220px;
+            height: 100vh;
+
+            background: #292929;
+            color: white;
+
+            display: flex;
+            flex-direction: column;
+
+            z-index: 1000;
+        }
+
+        .brand {
+            padding: 26px 24px;
+
+            font-size: 16px;
+            font-weight: bold;
+
+            color: #fff;
+        }
+
+        .nav {
+            padding: 14px 24px;
+            flex: 1;
+        }
+
+        .nav a {
+            display: block;
+
+            padding: 13px 14px;
+            margin-bottom: 5px;
+
+            color: #f1f1f1;
+            text-decoration: none;
+
+            border-radius: 6px;
+
+            font-size: 14px;
+
+            transition: 0.2s;
+        }
+
+        .nav a:hover {
+            background: #363636;
+        }
+
+        .nav a.active {
+            background: #e60024;
+            color: white;
+        }
+
+        .logout {
+            margin: 0 24px;
+
+            padding: 20px 0 24px;
+
+            border-top: 1px solid #444;
+        }
+
+        .logout a {
+            display: block;
+
+            padding: 10px 14px;
+
+            color: #f1f1f1;
+            text-decoration: none;
+
+            font-size: 14px;
+
+            border-radius: 6px;
+        }
+
+        .logout a:hover {
+            background: #363636;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            margin-left: 220px;
+
+            min-height: 100vh;
+
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 25px;
+
+            gap: 20px;
+        }
+
+        .topbar h1 {
+            margin: 0;
+
+            font-size: 28px;
+        }
+
+        .topbar p {
+            margin: 5px 0 0;
+
+            color: #777;
+        }
+
+        /* =========================
+           MOBILE MENU
+        ========================= */
+
+        .menu-toggle {
+            display: none;
+
+            border: none;
+
+            background: #e60024;
+            color: white;
+
+            padding: 10px 14px;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+
+            font-size: 18px;
+        }
+
+        /* =========================
+           TOOLBAR
+        ========================= */
+
+        .toolbar {
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            width: 280px;
+        }
+
+        .search-box input {
+            width: 100%;
+
+            padding: 11px 13px;
+
+            border: 1px solid #ccc;
+
+            border-radius: 5px;
+
+            background: white;
+
+            font-size: 14px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+
+            border-color: #e60024;
+        }
+
+        .filter-label {
+            font-size: 14px;
+
+            color: #555;
+        }
+
+        #statusFilter {
+            padding: 10px 12px;
+
+            border: 1px solid #ccc;
+
+            border-radius: 5px;
+
+            background: white;
+
+            font-size: 14px;
+        }
+
+        #statusFilter:focus {
+            outline: none;
+
+            border-color: #e60024;
+        }
+
+        /* =========================
+           BUTTONS
+        ========================= */
+
+        .btn {
+            padding: 11px 16px;
+
+            border: none;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+
+            font-size: 14px;
+
+            text-decoration: none;
+        }
+
+        .primary-btn {
+            background: #e60024;
+
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background: #c90020;
+        }
+
+        /* =========================
+           CARD
+        ========================= */
+
+        .card {
+            background: white;
+
+            border-radius: 8px;
+
+            padding: 25px;
+
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-header {
+            display: flex;
+
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 20px;
+        }
+
+        .card-header h2 {
+            margin: 0;
+
+            font-size: 20px;
+        }
+
+        /* =========================
+           COMPACT ORDERS TABLE
+        ========================= */
+
+        .table-wrapper {
+            width: 100%;
+
+            overflow-x: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            table-layout: fixed;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 10px 7px;
+
+            border-bottom: 1px solid #eee;
+
+            text-align: left;
+
+            font-size: 12px;
+
+            vertical-align: top;
+
+            word-wrap: break-word;
+
+            overflow-wrap: anywhere;
+        }
+
+        .data-table th {
+            color: #666;
+
+            font-weight: 600;
+
+            background: #fafafa;
+        }
+
+        .data-table tbody tr:hover {
+            background: #fafafa;
+        }
+
+        /* =========================
+           COLUMN WIDTHS
+        ========================= */
+
+        /* Order # */
+        .data-table th:nth-child(1),
+        .data-table td:nth-child(1) {
+            width: 13%;
+        }
+
+        /* Item */
+        .data-table th:nth-child(2),
+        .data-table td:nth-child(2) {
+            width: 20%;
+        }
+
+        /* Quantity */
+        .data-table th:nth-child(3),
+        .data-table td:nth-child(3) {
+            width: 7%;
+
+            text-align: center;
+        }
+
+        /* Price */
+        .data-table th:nth-child(4),
+        .data-table td:nth-child(4) {
+            width: 10%;
+        }
+
+        /* Order Date */
+        .data-table th:nth-child(5),
+        .data-table td:nth-child(5) {
+            width: 11%;
+        }
+
+        /* Delivery */
+        .data-table th:nth-child(6),
+        .data-table td:nth-child(6) {
+            width: 11%;
+        }
+
+        /* Total */
+        .data-table th:nth-child(7),
+        .data-table td:nth-child(7) {
+            width: 10%;
+        }
+
+        /* Status */
+        .data-table th:nth-child(8),
+        .data-table td:nth-child(8) {
+            width: 11%;
+        }
+
+        /* Action */
+        .data-table th:nth-child(9),
+        .data-table td:nth-child(9) {
+            width: 7%;
+
+            text-align: center;
+        }
+
+        /* =========================
+           CUSTOMER DETAILS
+        ========================= */
+
+        .customer-info-row td {
+            background: #fafafa;
+
+            padding: 9px 12px;
+
+            font-size: 11px;
+
+            color: #666;
+
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .customer-info {
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 8px 18px;
+
+            line-height: 1.5;
+        }
+
+        .customer-info strong {
+            color: #333;
+        }
+
+        .customer-info span {
+            display: inline-block;
+        }
+
+        /* =========================
+           ORDER ITEMS
+        ========================= */
+
+        .item-name {
+            font-weight: 600;
+
+            color: #333;
+        }
+
+        .item-more {
+            display: block;
+
+            margin-top: 3px;
+
+            color: #888;
+
+            font-size: 11px;
+        }
+
+        .items-list {
+            line-height: 1.5;
+        }
+
+        .items-list div {
+            margin-bottom: 2px;
+        }
+
+        .items-list div:last-child {
+            margin-bottom: 0;
+        }
+
+        /* =========================
+           STATUS
+        ========================= */
+
+        .status-select {
+            width: 100%;
+
+            padding: 6px 5px;
+
+            border: 1px solid #ccc;
+
+            border-radius: 4px;
+
+            font-size: 11px;
+
+            background: white;
+
+            cursor: pointer;
+        }
+
+        .status-select:focus {
+            outline: none;
+
+            border-color: #e60024;
+        }
+
+        /* =========================
+           ACTION
+        ========================= */
+
+        .icon-btn {
+            border: none;
+
+            background: transparent;
+
+            cursor: pointer;
+
+            font-size: 15px;
+
+            padding: 5px;
+
+            border-radius: 4px;
+        }
+
+        .icon-btn:hover {
+            background: #fdecee;
+        }
+
+        .delete-btn {
+            color: #e60024;
+        }
+
+        /* =========================
+           EMPTY
+        ========================= */
+
+        .empty {
+            text-align: center !important;
+
+            color: #888;
+
+            padding: 35px !important;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1100px) {
+
+            .main {
+                padding: 20px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .data-table th,
+            .data-table td {
+                font-size: 11px;
+
+                padding: 8px 5px;
+            }
+
+            .status-select {
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 900px) {
+
+            .toolbar {
+                flex-wrap: wrap;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .table-wrapper {
+                overflow-x: hidden;
+            }
+
+            .data-table {
+                font-size: 11px;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 7px 4px;
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                transform: translateX(-100%);
+
+                transition: 0.25s;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+
+                padding: 20px;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .topbar {
+                position: relative;
+            }
+
+            .topbar > div:first-child {
+                padding-right: 55px;
+            }
+
+            .toolbar {
+                align-items: stretch;
+
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            #statusFilter {
+                width: 100%;
+            }
+
+            .primary-btn {
+                width: 100%;
+
+                text-align: center;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            .table-wrapper {
+                overflow-x: auto;
+            }
+
+            .data-table {
+                min-width: 720px;
+            }
+        }
+    </style>
+
 </head>
+
+
 <body>
-  <div class="app-layout">
-    <aside class="sidebar">
-      <h2 class="logo">RSA Meat Trading</h2>
-      <nav class="side-nav">
-        <a href="dashboard.html"> Dashboard</a>
-        <a href="orders.html" class="active"> Orders</a>
-        <a href="customers.html"> Customers</a>
-        <a href="reports.html"> Reports</a>
-      </nav>
-      <div class="sidebar-bottom">
-        <a href="index.html" class="logout-link">↩ Logout</a>
-      </div>
+
+    <!-- =========================
+         SIDEBAR
+    ========================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            RSA Meat Trading
+        </div>
+
+        <nav class="nav">
+
+            <a href="dashboard.html">
+                Dashboard
+            </a>
+
+            <a href="orders.html" class="active">
+                Orders
+            </a>
+
+            <a href="create-order.html">
+                Create Order
+            </a>
+
+            <a href="customers.html">
+                Customers
+            </a>
+
+            <a href="reports.html">
+                Reports
+            </a>
+
+        </nav>
+
+        <div class="logout">
+
+            <a href="#" id="logoutBtn">
+                Logout
+            </a>
+
+        </div>
+
     </aside>
 
-    <main class="main-content">
-      <div class="top-header">
-        <h1>Order Management</h1>
-        <div class="top-search"><input type="text" id="searchInput" placeholder="Search orders..."></div>
-      </div>
 
-      <div class="filter-bar">
-        <span>Status:</span>
-        <select id="statusFilter">
-          <option value="All">All Orders</option>
-          <option value="Pending">Pending</option>
-          <option value="Preparing">Preparing</option>
-          <option value="Ready">Ready</option>
-          <option value="Completed">Completed</option>
-        </select>
-        <button class="btn primary-btn" style="margin-left:auto;" onclick="location.href='create-order.html'">+ New Order</button>
-      </div>
+    <!-- =========================
+         MAIN
+    ========================= -->
 
-      <div class="card">
-        <h3>Orders</h3>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Order #</th>
-              <th>Customer</th>
-              <th>Date</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="ordersBody">
-            <tr>
-              <td colspan="6" style="text-align:center; color:#888; padding:2rem;">
-                📭 No orders found. <a href="create-order.html" style="color:#990033;">Create New Order →</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <main class="main">
+
+        <div class="topbar">
+
+            <div>
+
+                <h1>
+                    Order Management
+                </h1>
+
+                <p>
+                    View and manage customer orders
+                </p>
+
+            </div>
+
+            <button
+                class="menu-toggle"
+                id="menuToggle"
+                type="button"
+            >
+                ☰
+            </button>
+
+        </div>
+
+
+        <!-- =========================
+             TOOLBAR
+        ========================= -->
+
+        <div class="toolbar">
+
+            <div class="search-box">
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search orders..."
+                >
+
+            </div>
+
+            <span class="filter-label">
+                Status:
+            </span>
+
+            <select id="statusFilter">
+
+                <option value="All">
+                    All Orders
+                </option>
+
+                <option value="Pending">
+                    Pending
+                </option>
+
+                <option value="Preparing">
+                    Preparing
+                </option>
+
+                <option value="Ready">
+                    Ready
+                </option>
+
+                <option value="Completed">
+                    Completed
+                </option>
+
+            </select>
+
+            <button
+                class="btn primary-btn"
+                id="newOrderBtn"
+                type="button"
+            >
+                + New Order
+            </button>
+
+        </div>
+
+
+        <!-- =========================
+             ORDERS CARD
+        ========================= -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h2>
+                    Orders
+                </h2>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table class="data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Order #</th>
+
+                            <th>Item Name</th>
+
+                            <th>Qty</th>
+
+                            <th>Price</th>
+
+                            <th>Order Date</th>
+
+                            <th>Delivery</th>
+
+                            <th>Total</th>
+
+                            <th>Status</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="ordersBody">
+
+                        <tr>
+
+                            <td
+                                colspan="9"
+                                class="empty"
+                            >
+                                Loading orders...
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
     </main>
-  </div>
-  <script src="js/script.js"></script>
+
+
+    <!-- =========================
+         PAGE CONTROLS
+    ========================= -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                /* =========================
+                   MOBILE MENU
+                ========================= */
+
+                const menuToggle =
+                    document.getElementById(
+                        "menuToggle"
+                    );
+
+                const sidebar =
+                    document.getElementById(
+                        "sidebar"
+                    );
+
+
+                if (menuToggle) {
+
+                    menuToggle.addEventListener(
+                        "click",
+                        function () {
+
+                            sidebar.classList.toggle(
+                                "open"
+                            );
+
+                        }
+                    );
+
+                }
+
+
+                /* =========================
+                   LOGOUT
+                ========================= */
+
+                const logoutBtn =
+                    document.getElementById(
+                        "logoutBtn"
+                    );
+
+
+                if (logoutBtn) {
+
+                    logoutBtn.addEventListener(
+                        "click",
+                        async function (e) {
+
+                            e.preventDefault();
+
+
+                            try {
+
+                                await fetch(
+                                    "api/logout.php",
+                                    {
+                                        method: "POST",
+
+                                        credentials:
+                                            "same-origin"
+                                    }
+                                );
+
+                            } catch (error) {
+
+                                console.error(
+                                    error
+                                );
+
+                            }
+
+
+                            window.location.href =
+                                "index.html";
+
+                        }
+                    );
+
+                }
+
+
+                /* =========================
+                   NEW ORDER
+                ========================= */
+
+                const newOrderBtn =
+                    document.getElementById(
+                        "newOrderBtn"
+                    );
+
+
+                if (newOrderBtn) {
+
+                    newOrderBtn.addEventListener(
+                        "click",
+                        function () {
+
+                            window.location.href =
+                                "create-order.html";
+
+                        }
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
+
+
+    <!-- PROJECT JAVASCRIPT -->
+
+    <script src="js/script.js"></script>
+
 </body>
+
 </html>

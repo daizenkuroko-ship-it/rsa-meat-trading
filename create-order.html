@@ -1,91 +1,894 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Order — RSA Meat Trading</title>
-  <link rel="stylesheet" href="css/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Order - RSA Meat Trading</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/auth-guard.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f5f5;
+            color: #222;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 220px;
+            height: 100vh;
+            background: #292929;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .brand {
+            padding: 24px 20px;
+            font-size: 20px;
+            font-weight: bold;
+            border-bottom: 1px solid #444;
+        }
+
+        .nav {
+            padding: 15px 10px;
+            flex: 1;
+        }
+
+        .nav a {
+            display: block;
+            padding: 13px 15px;
+            margin-bottom: 5px;
+            color: #ddd;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: 0.2s;
+        }
+
+        .nav a:hover {
+            background: #3a3a3a;
+            color: white;
+        }
+
+        .nav a.active {
+            background: #e60024;
+            color: white;
+        }
+
+        .logout {
+            padding: 15px 10px;
+            border-top: 1px solid #444;
+        }
+
+        .logout a {
+            display: block;
+            padding: 13px 15px;
+            color: #ddd;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: 0.2s;
+        }
+
+        .logout a:hover {
+            background: #3a3a3a;
+            color: white;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            margin-left: 220px;
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .topbar p {
+            margin: 5px 0 0;
+            color: #777;
+        }
+
+        .menu-toggle {
+            display: none;
+            border: none;
+            background: #e60024;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .menu-toggle:hover {
+            background: #c90020;
+        }
+
+        /* =========================
+           CARD
+        ========================= */
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        /* =========================
+           FORM
+        ========================= */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            margin-bottom: 7px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            background: white;
+        }
+
+        textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #e60024;
+        }
+
+        /* =========================
+           ORDER ITEMS
+        ========================= */
+
+        .items-section {
+            margin-top: 30px;
+        }
+
+        .items-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .items-header h2 {
+            margin: 0;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #e60024;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-block;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            background: #c90020;
+        }
+
+        .btn-secondary {
+            background: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #555;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #bb2d3b;
+        }
+
+        .items-wrapper {
+            overflow-x: auto;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        .items-table th,
+        .items-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        .items-table th {
+            font-size: 13px;
+            color: #666;
+            background: #fafafa;
+        }
+
+        .items-table input {
+            min-width: 100px;
+        }
+
+        .items-table .product-name,
+        .items-table .product-select {
+            min-width: 220px;
+        }
+
+        .items-table select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        .row-subtotal,
+        .subtotal {
+            font-weight: 600;
+        }
+
+        /* =========================
+           TOTALS
+        ========================= */
+
+        .totals {
+            margin-top: 20px;
+            margin-left: auto;
+            max-width: 350px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .total-row.grand {
+            font-size: 20px;
+            font-weight: bold;
+            border-bottom: none;
+            padding-top: 15px;
+        }
+
+        /* =========================
+           ACTIONS
+        ========================= */
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: 0.25s;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+
+            .items-header {
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 450px) {
+
+            .main {
+                padding: 15px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .topbar h1 {
+                font-size: 24px;
+            }
+
+            .items-header {
+                flex-direction: column;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .actions .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
+
 <body>
-  <div class="app-layout">
-    <aside class="sidebar">
-      <h2 class="logo">RSA Meat Trading</h2>
-      <nav class="side-nav">
-        <a href="dashboard.html"> Dashboard</a>
-        <a href="orders.html" class="active"> Orders</a>
-        <a href="customers.html"> Customers</a>
-        <a href="reports.html"> Reports</a>
-      </nav>
-      <div class="sidebar-bottom">
-        <a href="orders.html" class="logout-link">↩ Back to Orders</a>
-      </div>
+
+    <!-- =========================
+         SIDEBAR
+    ========================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            RSA Meat Trading
+        </div>
+
+        <nav class="nav">
+
+            <a href="dashboard.html">
+                Dashboard
+            </a>
+
+            <a href="orders.html">
+                Orders
+            </a>
+
+            <a href="create-order.html" class="active">
+                Create Order
+            </a>
+
+            <a href="customers.html">
+                Customers
+            </a>
+
+            <a href="reports.html">
+                Reports
+            </a>
+
+        </nav>
+
+        <div class="logout">
+
+            <a href="#" id="logoutBtn">
+                Logout
+            </a>
+
+        </div>
+
     </aside>
 
-    <main class="main-content">
-      <div class="top-header"><h1>Create New Order</h1></div>
 
-      <form class="card order-form" id="orderForm">
-        <div class="form-section">
-          <h3>Customer Details</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Company Name *</label>
-              <input type="text" id="company" required>
+    <!-- =========================
+         MAIN CONTENT
+    ========================= -->
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <div>
+
+                <h1>
+                    Create Order
+                </h1>
+
+                <p>
+                    Create a new meat trading order
+                </p>
+
             </div>
-            <div class="form-group">
-              <label>Contact Person</label>
-              <input type="text" id="contact">
+
+            <button
+                class="menu-toggle"
+                id="menuToggle"
+                type="button"
+                aria-label="Open menu"
+            >
+                ☰
+            </button>
+
+        </div>
+
+
+        <!-- =========================
+             ORDER FORM
+        ========================= -->
+
+        <form
+            id="orderForm"
+            class="card"
+        >
+
+            <!--
+                Hidden order number.
+
+                script.js automatically generates
+                the order number.
+            -->
+
+            <input
+                type="hidden"
+                id="order_number"
+                name="order_number"
+            >
+
+
+            <!-- =========================
+                 CUSTOMER INFORMATION
+            ========================= -->
+
+            <h2>
+                Customer Information
+            </h2>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label for="company">
+                        Company Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="company"
+                        name="company"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="contact">
+                        Contact Person
+                    </label>
+
+                    <input
+                        type="text"
+                        id="contact"
+                        name="contact"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="phone">
+                        Phone
+                    </label>
+
+                    <input
+                        type="text"
+                        id="phone"
+                        name="phone"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="email">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                    >
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label for="address">
+                        Address
+                    </label>
+
+                    <textarea
+                        id="address"
+                        name="address"
+                    ></textarea>
+
+                </div>
+
             </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>Phone</label><input type="tel" id="phone"></div>
-            <div class="form-group"><label>Email</label><input type="email" id="email"></div>
-          </div>
-          <div class="form-group">
-            <label>Delivery Address *</label>
-            <textarea id="address" required></textarea>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>Order Date</label><input type="date" id="orderDate" required></div>
-            <div class="form-group"><label>Delivery Date</label><input type="date" id="delivDate"></div>
-            <div class="form-group"><label>Status</label>
-              <select id="status">
-                <option>Pending</option><option>Preparing</option><option>Ready</option><option>Completed</option>
-              </select>
+
+
+            <!-- =========================
+                 DELIVERY INFORMATION
+            ========================= -->
+
+            <h2 style="margin-top:30px;">
+                Delivery Information
+            </h2>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label for="delivDate">
+                        Delivery Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="delivDate"
+                        name="delivDate"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="status">
+                        Status
+                    </label>
+
+                    <select
+                        id="status"
+                        name="status"
+                    >
+
+                        <option value="Pending">
+                            Pending
+                        </option>
+
+                        <option value="Preparing">
+                            Preparing
+                        </option>
+
+                        <option value="Ready">
+                            Ready
+                        </option>
+
+                        <option value="Completed">
+                            Completed
+                        </option>
+
+                    </select>
+
+                </div>
+
             </div>
-          </div>
-        </div>
 
-        <div class="form-section">
-          <h3>Order Items</h3>
-          <table class="data-table">
-            <thead><tr><th>Product</th><th>Qty (kg)</th><th>Price/kg ($)</th><th>Subtotal ($)</th><th></th></tr></thead>
-            <tbody id="itemsBody">
-              <tr class="item-row">
-                <td><input type="text" class="prod-name" placeholder="e.g. Beef Ribeye" required></td>
-                <td><input type="number" class="qty" step="0.01" min="0" required></td>
-                <td><input type="number" class="price" step="0.01" min="0" required></td>
-                <td class="row-subtotal">0.00</td>
-                <td><button type="button" class="remove-btn">✕</button></td>
-              </tr>
-            </tbody>
-          </table>
-          <button type="button" class="btn secondary-btn" id="addRow">+ Add Item</button>
-        </div>
 
-        <div class="form-section summary">
-          <div class="summary-row"><span>Subtotal</span><span id="subtotal">$0.00</span></div>
-          <div class="summary-row"><span>Tax (5%)</span><span id="tax">$0.00</span></div>
-          <div class="summary-row grand-total"><span>Total</span><span id="grandTotal">$0.00</span></div>
-        </div>
+            <!-- =========================
+                 ORDER ITEMS
+            ========================= -->
 
-        <div class="form-actions">
-          <button type="reset" class="btn cancel-btn" onclick="location.href='orders.html'">Cancel</button>
-          <button type="submit" class="btn primary-btn">Save Order</button>
-        </div>
-      </form>
+            <div class="items-section">
+
+                <div class="items-header">
+
+                    <h2>
+                        Order Items
+                    </h2>
+
+                    <button
+                        type="button"
+                        id="addRow"
+                        class="btn"
+                    >
+                        + Add Item
+                    </button>
+
+                </div>
+
+
+                <div class="items-wrapper">
+
+                    <table class="items-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Product
+                                </th>
+
+                                <th>
+                                    Quantity
+                                </th>
+
+                                <th>
+                                    Price
+                                </th>
+
+                                <th>
+                                    Subtotal
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <!--
+                            IMPORTANT:
+                            Leave this empty.
+
+                            script.js creates the first
+                            order-item row automatically.
+                        -->
+
+                        <tbody id="itemsBody"></tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- =========================
+                     TOTALS
+                ========================= -->
+
+                <div class="totals">
+
+                    <div class="total-row">
+
+                        <span>
+                            Subtotal
+                        </span>
+
+                        <strong id="subtotal">
+                            ₱0.00
+                        </strong>
+
+                    </div>
+
+
+                    <div class="total-row grand">
+
+                        <span>
+                            Grand Total
+                        </span>
+
+                        <strong id="grandTotal">
+                            ₱0.00
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 FORM ACTIONS
+            ========================= -->
+
+            <div class="actions">
+
+                <a
+                    href="orders.html"
+                    class="btn btn-secondary"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    id="saveOrderBtn"
+                    class="btn"
+                >
+                    Save Order
+                </button>
+
+            </div>
+
+        </form>
+
     </main>
-  </div>
-  <script src="js/script.js"></script>
+
+
+    <!-- =========================
+         MOBILE SIDEBAR + LOGOUT
+    ========================= -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                /* =========================
+                   MOBILE SIDEBAR
+                ========================= */
+
+                const menuToggle =
+                    document.getElementById("menuToggle");
+
+                const sidebar =
+                    document.getElementById("sidebar");
+
+
+                if (menuToggle && sidebar) {
+
+                    menuToggle.addEventListener(
+                        "click",
+                        function () {
+
+                            sidebar.classList.toggle("open");
+
+                        }
+                    );
+
+                }
+
+
+                /* =========================
+                   LOGOUT
+                ========================= */
+
+                const logoutBtn =
+                    document.getElementById("logoutBtn");
+
+
+                if (logoutBtn) {
+
+                    logoutBtn.addEventListener(
+                        "click",
+                        async function (e) {
+
+                            e.preventDefault();
+
+                            try {
+
+                                await fetch(
+                                    "api/logout.php",
+                                    {
+                                        method: "POST",
+                                        credentials: "same-origin"
+                                    }
+                                );
+
+                            } catch (error) {
+
+                                console.error(
+                                    "Logout error:",
+                                    error
+                                );
+
+                            }
+
+                            window.location.href =
+                                "index.html";
+
+                        }
+                    );
+
+                }
+
+
+                /* =========================
+                   DELIVERY DATE
+                ========================= */
+
+                const deliveryDate =
+                    document.getElementById("delivDate");
+
+
+                if (deliveryDate) {
+
+                    const today =
+                        new Date()
+                            .toISOString()
+                            .split("T")[0];
+
+                    deliveryDate.min = today;
+
+                }
+
+            }
+        );
+
+    </script>
+
+
+    <!-- =========================
+         MAIN SYSTEM JAVASCRIPT
+    ========================= -->
+
+    <script src="js/script.js"></script>
+
 </body>
 </html>

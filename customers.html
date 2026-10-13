@@ -1,118 +1,898 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Customers — RSA Meat Trading</title>
-  <link rel="stylesheet" href="css/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Customers - RSA Meat Trading</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/auth-guard.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f5f5;
+            color: #222;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 220px;
+            height: 100vh;
+            background: #292929;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .brand {
+            padding: 24px 20px;
+            font-size: 20px;
+            font-weight: bold;
+            border-bottom: 1px solid #444;
+        }
+
+        .nav {
+            padding: 15px 10px;
+            flex: 1;
+        }
+
+        .nav a {
+            display: block;
+            padding: 13px 15px;
+            margin-bottom: 5px;
+            color: #ddd;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: 0.2s;
+        }
+
+        .nav a:hover {
+            background: #3a3a3a;
+            color: white;
+        }
+
+        .nav a.active {
+            background: #e60024;
+            color: white;
+        }
+
+        .logout {
+            padding: 15px 10px;
+            border-top: 1px solid #444;
+        }
+
+        .logout a {
+            display: block;
+            padding: 13px 15px;
+            color: #ddd;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: 0.2s;
+        }
+
+        .logout a:hover {
+            background: #3a3a3a;
+            color: white;
+        }
+
+        /* =========================
+           MAIN CONTENT
+        ========================= */
+
+        .main {
+            margin-left: 220px;
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 20px;
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .topbar p {
+            margin: 5px 0 0;
+            color: #777;
+        }
+
+        .menu-toggle {
+            display: none;
+            border: none;
+            background: #e60024;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .menu-toggle:hover {
+            background: #c90020;
+        }
+
+        /* =========================
+           SEARCH
+        ========================= */
+
+        .search-box {
+            width: 280px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 11px 13px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: white;
+            font-size: 14px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #e60024;
+        }
+
+        /* =========================
+           CARD
+        ========================= */
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .card-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 13px 12px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .data-table th {
+            color: #666;
+            font-weight: 600;
+            background: #fafafa;
+        }
+
+        .data-table tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .empty {
+            text-align: center !important;
+            color: #888;
+            padding: 35px !important;
+        }
+
+        /* =========================
+           ORDER COUNT
+        ========================= */
+
+        .order-count {
+            display: inline-block;
+            min-width: 30px;
+            padding: 5px 9px;
+            text-align: center;
+            border-radius: 15px;
+            background: #e60024;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 900px) {
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: 0.25s;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .topbar {
+                position: relative;
+            }
+
+            .topbar > div:first-child {
+                padding-right: 55px;
+            }
+        }
+
+        @media (max-width: 450px) {
+
+            .main {
+                padding: 15px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .topbar h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-  <div class="app-layout">
-    <aside class="sidebar">
-      <h2 class="logo">RSA Meat Trading</h2>
-      <nav class="side-nav">
-        <a href="dashboard.html"> Dashboard</a>
-        <a href="orders.html"> Orders</a>
-        <a href="customers.html" class="active"> Customers</a>
-        <a href="reports.html"> Reports</a>
-      </nav>
-      <div class="sidebar-bottom">
-        <a href="index.html" class="logout-link">↩ Logout</a>
-      </div>
+
+    <!-- =========================
+         SIDEBAR
+    ========================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            RSA Meat Trading
+        </div>
+
+        <nav class="nav">
+
+            <a href="dashboard.html">
+                Dashboard
+            </a>
+
+            <a href="orders.html">
+                Orders
+            </a>
+
+            <a href="create-order.html">
+                Create Order
+            </a>
+
+            <a href="customers.html" class="active">
+                Customers
+            </a>
+
+            <a href="reports.html">
+                Reports
+            </a>
+
+        </nav>
+
+        <div class="logout">
+
+            <a href="#" id="logoutBtn">
+                Logout
+            </a>
+
+        </div>
+
     </aside>
 
-    <main class="main-content">
-      <div class="top-header">
-        <h1>Customers</h1>
-        <div class="top-search"><input type="text" id="customerSearch" placeholder="Search customers..."></div>
-      </div>
 
-      <div class="card">
-        <h3>Customer List</h3>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Customer Name / Company</th>
-              <th>Contact Person</th>
-              <th>Phone</th>
-              <th>Email</th>
-              <th>Address</th>
-              <th>Total Orders</th>
-            </tr>
-          </thead>
-          <tbody id="customersBody">
-            <tr>
-              <td colspan="6" style="text-align:center; color:#888; padding:2rem;">No customer records found. Create orders to see customers here.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <!-- =========================
+         MAIN CONTENT
+    ========================= -->
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <div>
+
+                <h1>
+                    Customers
+                </h1>
+
+                <p>
+                    Customer list and order history
+                </p>
+
+            </div>
+
+            <button
+                class="menu-toggle"
+                id="menuToggle"
+                type="button"
+                aria-label="Open menu"
+            >
+                ☰
+            </button>
+
+        </div>
+
+
+        <!-- =========================
+             CUSTOMER CARD
+        ========================= -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h2>
+                    Customer List
+                </h2>
+
+                <div class="search-box">
+
+                    <input
+                        type="text"
+                        id="customerSearch"
+                        placeholder="Search customers..."
+                        autocomplete="off"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table class="data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Customer Name / Company
+                            </th>
+
+                            <th>
+                                Contact Person
+                            </th>
+
+                            <th>
+                                Phone
+                            </th>
+
+                            <th>
+                                Email
+                            </th>
+
+                            <th>
+                                Address
+                            </th>
+
+                            <th>
+                                Total Orders
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="customersBody">
+
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="empty"
+                            >
+                                Loading customers...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
     </main>
-  </div>
 
-  <script>
-    // Get orders from storage
-    function getOrders() { return JSON.parse(localStorage.getItem('rsaOrders') || '[]'); }
 
-    // Render unique customers
-    function renderCustomers(searchTerm = '') {
-      const orders = getOrders();
-      const tbody = document.getElementById('customersBody');
-      
-      // Group orders by customer (company name)
-      const customerMap = {};
-      orders.forEach(order => {
-        const key = order.company.toLowerCase().trim();
-        if(!customerMap[key]) {
-          customerMap[key] = {
-            company: order.company,
-            contact: order.contact || '-',
-            phone: order.phone || '-',
-            email: order.email || '-',
-            address: order.address || '-',
-            orderCount: 0
-          };
-        }
-        customerMap[key].orderCount++;
-      });
+    <!-- =========================
+         SIDEBAR + LOGOUT
+    ========================= -->
 
-      // Convert to array and filter by search
-      let customers = Object.values(customerMap);
-      if(searchTerm) {
-        const term = searchTerm.toLowerCase();
-        customers = customers.filter(c => 
-          c.company.toLowerCase().includes(term) ||
-          c.contact.toLowerCase().includes(term) ||
-          c.phone.includes(term)
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                /* =========================
+                   MOBILE SIDEBAR
+                ========================= */
+
+                const menuToggle =
+                    document.getElementById("menuToggle");
+
+                const sidebar =
+                    document.getElementById("sidebar");
+
+
+                if (menuToggle && sidebar) {
+
+                    menuToggle.addEventListener(
+                        "click",
+                        function () {
+
+                            sidebar.classList.toggle("open");
+
+                        }
+                    );
+
+                }
+
+
+                /* =========================
+                   LOGOUT
+                ========================= */
+
+                const logoutBtn =
+                    document.getElementById("logoutBtn");
+
+
+                if (logoutBtn) {
+
+                    logoutBtn.addEventListener(
+                        "click",
+                        async function (e) {
+
+                            e.preventDefault();
+
+                            try {
+
+                                await fetch(
+                                    "api/logout.php",
+                                    {
+                                        method: "POST",
+                                        credentials: "same-origin"
+                                    }
+                                );
+
+                            } catch (error) {
+
+                                console.error(
+                                    "Logout error:",
+                                    error
+                                );
+
+                            }
+
+                            window.location.href =
+                                "index.html";
+
+                        }
+                    );
+
+                }
+
+            }
         );
-      }
 
-      // Display
-      if(customers.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888; padding:2rem;">No customer records found. Create orders to see customers here.</td></tr>';
-        return;
-      }
+    </script>
 
-      tbody.innerHTML = customers.map(c => `
-        <tr>
-          <td><strong>${c.company}</strong></td>
-          <td>${c.contact}</td>
-          <td>${c.phone}</td>
-          <td>${c.email}</td>
-          <td>${c.address}</td>
-          <td>${c.orderCount}</td>
-        </tr>
-      `).join('');
-    }
 
-    // Load on page ready
-    document.addEventListener('DOMContentLoaded', () => {
-      renderCustomers();
-      // Search functionality
-      document.getElementById('customerSearch')?.addEventListener('input', e => {
-        renderCustomers(e.target.value);
-      });
-    });
-  </script>
+    <!-- =========================
+         CUSTOMER FUNCTIONALITY
+    ========================= -->
+
+    <script>
+
+        let allCustomers = [];
+
+
+        /* =========================
+           LOAD CUSTOMERS
+        ========================= */
+
+        async function loadCustomers() {
+
+            const tbody =
+                document.getElementById(
+                    "customersBody"
+                );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "api/orders.php?action=list&search=&status=All",
+                        {
+                            credentials: "same-origin"
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Failed to load orders."
+                    );
+
+                }
+
+
+                const orders =
+                    await response.json();
+
+
+                /*
+                 * Build customer list from orders.
+                 * Multiple orders from the same
+                 * company are combined.
+                 */
+
+                const customerMap = {};
+
+
+                if (Array.isArray(orders)) {
+
+                    orders.forEach(
+                        function (order) {
+
+                            const company =
+                                String(
+                                    order.company_name ||
+                                    order.company ||
+                                    ""
+                                ).trim();
+
+
+                            if (!company) {
+                                return;
+                            }
+
+
+                            const key =
+                                company.toLowerCase();
+
+
+                            if (!customerMap[key]) {
+
+                                customerMap[key] = {
+
+                                    company:
+                                        company,
+
+                                    contact:
+                                        order.contact_person ||
+                                        order.contact ||
+                                        "-",
+
+                                    phone:
+                                        order.phone ||
+                                        "-",
+
+                                    email:
+                                        order.email ||
+                                        "-",
+
+                                    address:
+                                        order.address ||
+                                        "-",
+
+                                    orderCount: 0
+
+                                };
+
+                            }
+
+
+                            customerMap[key].orderCount++;
+
+                        }
+                    );
+
+                }
+
+
+                allCustomers =
+                    Object.values(customerMap);
+
+
+                renderCustomers();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Customer loading error:",
+                    error
+                );
+
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="6"
+                            class="empty"
+                        >
+                            Unable to load customer records.
+                        </td>
+                    </tr>
+                `;
+
+            }
+
+        }
+
+
+        /* =========================
+           RENDER CUSTOMERS
+        ========================= */
+
+        function renderCustomers(
+            searchTerm = ""
+        ) {
+
+            const tbody =
+                document.getElementById(
+                    "customersBody"
+                );
+
+
+            const term =
+                searchTerm
+                    .toLowerCase()
+                    .trim();
+
+
+            let customers =
+                allCustomers;
+
+
+            if (term) {
+
+                customers =
+                    allCustomers.filter(
+                        function (customer) {
+
+                            return (
+
+                                customer.company
+                                    .toLowerCase()
+                                    .includes(term)
+
+                                ||
+
+                                customer.contact
+                                    .toLowerCase()
+                                    .includes(term)
+
+                                ||
+
+                                customer.phone
+                                    .toLowerCase()
+                                    .includes(term)
+
+                                ||
+
+                                customer.email
+                                    .toLowerCase()
+                                    .includes(term)
+
+                                ||
+
+                                customer.address
+                                    .toLowerCase()
+                                    .includes(term)
+
+                            );
+
+                        }
+                    );
+
+            }
+
+
+            if (customers.length === 0) {
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="6"
+                            class="empty"
+                        >
+                            No customer records found.
+                        </td>
+                    </tr>
+                `;
+
+                return;
+
+            }
+
+
+            tbody.innerHTML =
+                customers
+                    .map(
+                        function (customer) {
+
+                            return `
+
+                                <tr>
+
+                                    <td>
+                                        <strong>
+                                            ${escapeHTML(
+                                                customer.company
+                                            )}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            customer.contact
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            customer.phone
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            customer.email
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            customer.address
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        <span class="order-count">
+                                            ${customer.orderCount}
+                                        </span>
+                                    </td>
+
+                                </tr>
+
+                            `;
+
+                        }
+                    )
+                    .join("");
+
+        }
+
+
+        /* =========================
+           HTML ESCAPING
+        ========================= */
+
+        function escapeHTML(value) {
+
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+
+        }
+
+
+        /* =========================
+           INITIALIZE
+        ========================= */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                loadCustomers();
+
+
+                const search =
+                    document.getElementById(
+                        "customerSearch"
+                    );
+
+
+                if (search) {
+
+                    search.addEventListener(
+                        "input",
+                        function (e) {
+
+                            renderCustomers(
+                                e.target.value
+                            );
+
+                        }
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
+
 </body>
 </html>

@@ -1,0 +1,147 @@
+/* RSA Meat Trading - Owner Portal */
+:root {
+  --primary: #e60024;
+  --primary-dark: #c90020;
+  --ink: #1f1f1f;
+  --muted: #777;
+  --line: #e4e4e4;
+  --bg: #f4f4f6;
+  --card: #fff;
+  --up: #008833;
+  --down: #cc0000;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
+body { color: var(--ink); }
+
+/* ---------- Login / setup ---------- */
+.owner-login-body {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #2b2b2b, #5a0020);
+}
+.owner-login-card {
+  width: 100%; max-width: 420px;
+  background: #fff; border-radius: 14px;
+  padding: 2.2rem 2rem;
+  box-shadow: 0 12px 40px rgba(0,0,0,.35);
+  text-align: center;
+}
+.owner-badge {
+  display: inline-block; margin-bottom: 14px;
+  background: var(--primary); color: #fff;
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  padding: 5px 12px; border-radius: 20px;
+}
+.owner-login-card h1 { color: var(--primary); font-size: 1.5rem; }
+.owner-sub { color: var(--muted); font-size: .9rem; margin: 4px 0 20px; }
+.owner-field { text-align: left; margin-bottom: 14px; }
+.owner-field label { display: block; font-size: 13px; margin-bottom: 6px; color: #444; }
+.owner-field input {
+  width: 100%; padding: 12px; font-size: 15px;
+  border: 1px solid #ccc; border-radius: 7px;
+}
+.owner-field input:focus { outline: none; border-color: var(--primary); }
+.owner-btn {
+  width: 100%; margin-top: 6px; padding: 13px;
+  border: 0; border-radius: 7px; cursor: pointer;
+  background: var(--primary); color: #fff; font-size: 16px; font-weight: 700;
+}
+.owner-btn:hover { background: var(--primary-dark); }
+.owner-btn:disabled { opacity: .6; cursor: wait; }
+.owner-note { margin-top: 18px; font-size: 12px; color: #888; }
+.owner-note a, .owner-alert a { color: var(--primary); font-weight: 700; }
+.owner-alert { padding: 12px; border-radius: 7px; font-size: 14px; margin-bottom: 16px; text-align: left; }
+.owner-alert.error { background: #ffe6eb; color: #b00020; border: 1px solid #ffb8c4; }
+.owner-alert.success { background: #e5f7eb; color: #08752b; border: 1px solid #a8dfb8; }
+.owner-alert code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; }
+
+/* ---------- Dashboard ---------- */
+.owner-body { background: #f5f5f5; color: #222; min-height: 100vh; }
+/* Same page layout as the operations pages: fixed sidebar + .main */
+.sidebar { position: fixed; left: 0; top: 0; width: 220px; height: 100vh; z-index: 1000; }
+.main { margin-left: 220px; min-height: 100vh; padding: 30px; }
+.menu-toggle {
+  display: none; border: none; background: #e60024; color: #fff;
+  padding: 10px 14px; border-radius: 5px; cursor: pointer; font-size: 18px; margin-bottom: 14px;
+}
+
+.owner-controls {
+  display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.owner-controls h1 { font-size: 28px; }
+.owner-muted { color: #777; font-size: 14px; margin-top: 5px; }
+.owner-filters { display: flex; gap: 14px; flex-wrap: wrap; }
+.owner-filters label { font-size: 12px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+.owner-filters input, .owner-filters select, .owner-select-sm {
+  padding: 9px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; background: #fff; color: var(--ink);
+}
+.owner-select-sm { font-size: 13px; padding: 6px 8px; }
+
+.kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 20px; }
+.kpi-card {
+  background: var(--card); border-radius: 8px; padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06); border-top: 3px solid var(--primary);
+  display: flex; flex-direction: column; gap: 6px;
+}
+.kpi-label { font-size: 13px; color: var(--muted); }
+.kpi-value { font-size: 26px; font-weight: 700; word-break: break-word; }
+.kpi-sub { font-size: 12px; color: var(--muted); }
+.kpi-sub.up { color: var(--up); font-weight: 600; }
+.kpi-sub.down { color: var(--down); font-weight: 600; }
+
+.chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 20px; }
+.owner-card {
+  background: var(--card); border-radius: 8px; padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 0;
+}
+.main > .owner-card { margin-bottom: 20px; }
+.owner-card h3 { font-size: 18px; margin-bottom: 14px; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.card-head h3 { margin: 0; }
+.chart-box { position: relative; height: 300px; }
+.chart-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #888; font-size: 14px; text-align: center; padding: 20px; }
+
+.table-wrap { overflow-x: auto; }
+.owner-table { width: 100%; border-collapse: collapse; min-width: 520px; }
+.owner-table th, .owner-table td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; font-size: 14px; }
+.owner-table th { background: #fafafa; color: #666; font-weight: 600; }
+.owner-table .num { text-align: right; }
+.owner-table tbody tr:hover { background: #fafafa; }
+.owner-table td.empty { text-align: center; color: #888; padding: 22px; }
+.owner-table tr.current-row { background: #fdf0f3; font-weight: 600; }
+.chg-up { color: var(--up); font-weight: 600; }
+.chg-down { color: var(--down); font-weight: 600; }
+.owner-btn-sm {
+  background: var(--primary); color: #fff; border: 0; border-radius: 5px;
+  padding: 9px 14px; font-size: 13px; cursor: pointer;
+}
+.owner-btn-sm:hover { background: var(--primary-dark); }
+
+.print-only { display: none; }
+
+@media (max-width: 900px) {
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .chart-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+  .sidebar { transform: translateX(-100%); transition: .25s; }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; padding: 20px; }
+  .menu-toggle { display: inline-block; }
+}
+@media (max-width: 480px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+}
+@media print {
+  .sidebar, .menu-toggle, .owner-filters, .owner-btn-sm, .owner-select-sm { display: none !important; }
+  .main { margin: 0 !important; padding: 0 !important; }
+  .print-only { display: block; margin-bottom: 14px; }
+  .owner-body { background: #fff; }
+  .owner-card, .kpi-card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+  .chart-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* Links styled as header buttons */
+a.owner-btn-ghost { text-decoration: none; display: inline-block; }

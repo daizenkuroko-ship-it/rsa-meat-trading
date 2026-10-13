@@ -1,67 +1,757 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard — RSA Meat Trading</title>
-  <link rel="stylesheet" href="css/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard - RSA Meat Trading</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/auth-guard.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f5f5;
+            color: #222;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 220px;
+            height: 100vh;
+            background: #292929;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .brand {
+            padding: 24px 20px;
+            font-size: 20px;
+            font-weight: bold;
+            border-bottom: 1px solid #444;
+        }
+
+        .nav {
+            padding: 15px 10px;
+            flex: 1;
+        }
+
+        .nav a {
+            display: block;
+            padding: 13px 15px;
+            margin-bottom: 5px;
+            color: #ddd;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: 0.2s;
+        }
+
+        .nav a:hover {
+            background: #3a3a3a;
+            color: white;
+        }
+
+        .nav a.active {
+            background: #e60024;
+            color: white;
+        }
+
+        .logout {
+            padding: 15px 10px;
+            border-top: 1px solid #444;
+        }
+
+        .logout a {
+            display: block;
+            padding: 13px 15px;
+            color: #ddd;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .logout a:hover {
+            background: #3a3a3a;
+            color: white;
+        }
+
+        /* =========================
+           MAIN CONTENT
+        ========================= */
+
+        .main {
+            margin-left: 220px;
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .topbar p {
+            margin: 5px 0 0;
+            color: #777;
+        }
+
+        .menu-toggle {
+            display: none;
+            border: none;
+            background: #e60024;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .menu-toggle:hover {
+            background: #c90020;
+        }
+
+        /* =========================
+           STATISTICS
+        ========================= */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .stat-card h3 {
+            margin: 0 0 10px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        .stat-card .number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #222;
+        }
+
+        /* =========================
+           DASHBOARD GRID
+        ========================= */
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            color: #666;
+            font-weight: 600;
+            background: #fafafa;
+        }
+
+        tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+        }
+
+        /* =========================
+           ORDER BREAKDOWN
+        ========================= */
+
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 13px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .breakdown-row:last-child {
+            border-bottom: none;
+        }
+
+        .breakdown-row strong {
+            color: #e60024;
+        }
+
+        /* =========================
+           BUTTONS
+        ========================= */
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 11px 16px;
+            background: #e60024;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            background: #c90020;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 1100px) {
+
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: 0.25s;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 450px) {
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main {
+                padding: 15px;
+            }
+
+            .topbar h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-  <div class="app-layout">
-    <aside class="sidebar">
-      <h2 class="logo">RSA Meat Trading</h2>
-      <nav class="side-nav">
-        <a href="dashboard.html" class="active"> Dashboard</a>
-        <a href="orders.html"> Orders</a>
-        <a href="customers.html"> Customers</a>
-        <a href="reports.html"> Reports</a>
-      </nav>
-      <div class="sidebar-bottom">
-        <a href="index.html" class="logout-link">↩ Logout</a>
-      </div>
+
+    <!-- =========================
+         SIDEBAR
+    ========================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            RSA Meat Trading
+        </div>
+
+        <nav class="nav">
+
+            <a href="dashboard.html" class="active">
+                Dashboard
+            </a>
+
+            <a href="orders.html">
+                Orders
+            </a>
+
+            <a href="create-order.html">
+                Create Order
+            </a>
+
+            <a href="customers.html">
+                Customers
+            </a>
+
+            <a href="reports.html">
+                Reports
+            </a>
+
+        </nav>
+
+        <div class="logout">
+
+            <a href="#" id="logoutBtn">
+                Logout
+            </a>
+
+        </div>
+
     </aside>
 
-    <main class="main-content">
-      <div class="top-header">
-        <h1>Dashboard</h1>
-        <div class="top-search">
-          <input type="text" placeholder="Search orders...">
-        </div>
-      </div>
 
-      <div class="stats-row">
-        <div class="stat-card"><span class="stat-label">Total Orders</span><span class="stat-value" id="totalOrders">0</span></div>
-        <div class="stat-card"><span class="stat-label">Pending</span><span class="stat-value" id="pendingCount">0</span></div>
-        <div class="stat-card"><span class="stat-label">Preparing</span><span class="stat-value" id="preparingCount">0</span></div>
-        <div class="stat-card"><span class="stat-label">Ready</span><span class="stat-value" id="readyCount">0</span></div>
-        <div class="stat-card"><span class="stat-label">Completed</span><span class="stat-value" id="completedCount">0</span></div>
-      </div>
+    <!-- =========================
+         MAIN CONTENT
+    ========================= -->
 
-      <div class="content-grid">
-        <div class="card">
-          <div class="card-header"><h3>Recent Orders</h3><a href="orders.html" class="view-all">View All →</a></div>
-          <table class="data-table">
-            <thead>
-              <tr><th>Order #</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th><th>Action</th></tr>
-            </thead>
-            <tbody id="recentOrdersBody">
-              <tr><td colspan="6" style="text-align:center; color:#888; padding:1.5rem;">📭 No orders yet.</td></tr>
-            </tbody>
-          </table>
+    <main class="main">
+
+        <div class="topbar">
+
+            <div>
+
+                <h1>
+                    Dashboard
+                </h1>
+
+                <p>
+                    RSA Meat Trading Order Management
+                </p>
+
+            </div>
+
+            <button
+                class="menu-toggle"
+                id="menuToggle"
+                type="button"
+                aria-label="Open menu"
+            >
+                ☰
+            </button>
+
         </div>
-        <div class="card">
-          <h3>Order Breakdown</h3>
-          <div class="big-number" id="bigTotal">0</div>
-          <div class="breakdown-stats">
-            <div><span class="dot completed"></span> Completed <strong id="compStat">0</strong></div>
-            <div><span class="dot pending"></span> Pending <strong id="pendStat">0</strong></div>
-            <div><span class="dot preparing"></span> Preparing <strong id="prepStat">0</strong></div>
-            <div><span class="dot ready"></span> Ready <strong id="readyStat">0</strong></div>
-          </div>
-        </div>
-      </div>
+
+
+        <!-- =========================
+             STATISTICS
+        ========================= -->
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+
+                <h3>
+                    Total Orders
+                </h3>
+
+                <div
+                    class="number"
+                    id="totalOrders"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h3>
+                    Pending
+                </h3>
+
+                <div
+                    class="number"
+                    id="pendingCount"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h3>
+                    Preparing
+                </h3>
+
+                <div
+                    class="number"
+                    id="preparingCount"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h3>
+                    Ready
+                </h3>
+
+                <div
+                    class="number"
+                    id="readyCount"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h3>
+                    Completed
+                </h3>
+
+                <div
+                    class="number"
+                    id="completedCount"
+                >
+                    0
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!--
+            Compatibility element for script.js.
+            It is hidden because this dashboard design
+            uses totalOrders instead of a separate bigTotal.
+        -->
+
+        <span id="bigTotal" hidden>0</span>
+
+
+        <!-- =========================
+             DASHBOARD CONTENT
+        ========================= -->
+
+        <section class="dashboard-grid">
+
+
+            <!-- =========================
+                 RECENT ORDERS
+            ========================= -->
+
+            <div class="card">
+
+                <h2>
+                    Recent Orders
+                </h2>
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Order #
+                                </th>
+
+                                <th>
+                                    Company
+                                </th>
+
+                                <th>
+                                    Delivery Date
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Total
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="recentOrdersBody">
+
+                            <tr>
+
+                                <td
+                                    colspan="5"
+                                    class="empty"
+                                >
+                                    Loading orders...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <div class="quick-actions">
+
+                    <a
+                        href="create-order.html"
+                        class="btn"
+                    >
+                        + Create Order
+                    </a>
+
+                    <a
+                        href="orders.html"
+                        class="btn"
+                    >
+                        View All Orders
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 ORDER BREAKDOWN
+            ========================= -->
+
+            <div class="card">
+
+                <h2>
+                    Order Breakdown
+                </h2>
+
+
+                <div class="breakdown-row">
+
+                    <span>
+                        Completed
+                    </span>
+
+                    <strong id="compStat">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="breakdown-row">
+
+                    <span>
+                        Pending
+                    </span>
+
+                    <strong id="pendStat">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="breakdown-row">
+
+                    <span>
+                        Preparing
+                    </span>
+
+                    <strong id="prepStat">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="breakdown-row">
+
+                    <span>
+                        Ready
+                    </span>
+
+                    <strong id="readyStat">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
     </main>
-  </div>
-  <script src="js/script.js"></script>
+
+
+    <!-- =========================
+         SIDEBAR + LOGOUT
+    ========================= -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                /* =========================
+                   MOBILE SIDEBAR
+                ========================= */
+
+                const menuToggle =
+                    document.getElementById("menuToggle");
+
+                const sidebar =
+                    document.getElementById("sidebar");
+
+
+                if (menuToggle && sidebar) {
+
+                    menuToggle.addEventListener(
+                        "click",
+                        function () {
+
+                            sidebar.classList.toggle("open");
+
+                        }
+                    );
+
+                }
+
+
+                /* =========================
+                   LOGOUT
+                ========================= */
+
+                const logoutBtn =
+                    document.getElementById("logoutBtn");
+
+
+                if (logoutBtn) {
+
+                    logoutBtn.addEventListener(
+                        "click",
+                        async function (e) {
+
+                            e.preventDefault();
+
+                            try {
+
+                                await fetch(
+                                    "api/logout.php",
+                                    {
+                                        method: "POST",
+                                        credentials: "same-origin"
+                                    }
+                                );
+
+                            } catch (error) {
+
+                                console.error(
+                                    "Logout error:",
+                                    error
+                                );
+
+                            }
+
+                            window.location.href =
+                                "index.html";
+
+                        }
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
+
+
+    <!-- =========================
+         MAIN SYSTEM JAVASCRIPT
+    ========================= -->
+
+    <script src="js/script.js"></script>
+
 </body>
 </html>

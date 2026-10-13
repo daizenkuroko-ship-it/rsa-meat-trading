@@ -1,210 +1,2146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reports & Analytics — RSA Meat Trading</title>
-  <link rel="stylesheet" href="css/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Reports & Analytics - RSA Meat Trading</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/auth-guard.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f5f5;
+            color: #222;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+
+            width: 220px;
+            height: 100vh;
+
+            background: #292929;
+            color: white;
+
+            display: flex;
+            flex-direction: column;
+
+            z-index: 1000;
+        }
+
+        .brand {
+            padding: 26px 24px;
+
+            font-size: 16px;
+            font-weight: bold;
+
+            color: #fff;
+        }
+
+        .nav {
+            padding: 14px 24px;
+
+            flex: 1;
+        }
+
+        .nav a {
+            display: block;
+
+            padding: 13px 14px;
+            margin-bottom: 5px;
+
+            color: #f1f1f1;
+            text-decoration: none;
+
+            border-radius: 6px;
+
+            font-size: 14px;
+
+            transition: 0.2s;
+        }
+
+        .nav a:hover {
+            background: #363636;
+        }
+
+        .nav a.active {
+            background: #e60024;
+            color: white;
+        }
+
+        .logout {
+            margin: 0 24px;
+
+            padding: 20px 0 24px;
+
+            border-top: 1px solid #444;
+        }
+
+        .logout a {
+            display: block;
+
+            padding: 10px 14px;
+
+            color: #f1f1f1;
+            text-decoration: none;
+
+            font-size: 14px;
+
+            border-radius: 6px;
+        }
+
+        .logout a:hover {
+            background: #363636;
+        }
+
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            margin-left: 220px;
+
+            min-height: 100vh;
+
+            padding: 30px;
+        }
+
+
+        .topbar {
+            display: flex;
+
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 25px;
+
+            gap: 20px;
+        }
+
+        .topbar h1 {
+            margin: 0;
+
+            font-size: 28px;
+        }
+
+        .topbar p {
+            margin: 5px 0 0;
+
+            color: #777;
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        .menu-toggle {
+            display: none;
+
+            border: none;
+
+            background: #e60024;
+
+            color: white;
+
+            padding: 10px 14px;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+
+            font-size: 18px;
+        }
+
+
+        /* =========================
+           BUTTON
+        ========================= */
+
+        .btn {
+            padding: 11px 16px;
+
+            border: none;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+
+            font-size: 14px;
+
+            text-decoration: none;
+        }
+
+        .primary-btn {
+            background: #e60024;
+
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background: #c90020;
+        }
+
+
+        /* =========================
+           STATISTICS
+        ========================= */
+
+        .stats-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(5, minmax(0, 1fr));
+
+            gap: 15px;
+
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+
+            border-radius: 8px;
+
+            padding: 20px;
+
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .stat-label {
+            display: block;
+
+            color: #777;
+
+            font-size: 13px;
+
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            display: block;
+
+            font-size: 25px;
+
+            font-weight: bold;
+        }
+
+
+        /* =========================
+           CONTENT GRID
+        ========================= */
+
+        .content-grid {
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 20px;
+        }
+
+
+        /* =========================
+           CARD
+        ========================= */
+
+        .card {
+            background: white;
+
+            border-radius: 8px;
+
+            padding: 25px;
+
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .card h2,
+        .card h3 {
+            margin-top: 0;
+
+            margin-bottom: 20px;
+        }
+
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 600px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 13px 12px;
+
+            border-bottom: 1px solid #eee;
+
+            text-align: left;
+
+            font-size: 14px;
+        }
+
+        .data-table th {
+            color: #666;
+
+            font-weight: 600;
+
+            background: #fafafa;
+        }
+
+        .data-table tbody tr:hover {
+            background: #fafafa;
+        }
+
+
+        /* =========================
+           STATUS
+        ========================= */
+
+        .status {
+            display: inline-block;
+
+            padding: 5px 10px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+
+            color: #856404;
+        }
+
+        .status-preparing {
+            background: #cfe2ff;
+
+            color: #084298;
+        }
+
+        .status-ready {
+            background: #d1e7dd;
+
+            color: #0f5132;
+        }
+
+        .status-completed {
+            background: #d1e7dd;
+
+            color: #0f5132;
+        }
+
+
+        /* =========================
+           PRINT
+        ========================= */
+
+        .print-header {
+            display: none;
+        }
+
+        @media print {
+
+            .sidebar,
+            .menu-toggle,
+            .print-btn {
+                display: none !important;
+            }
+
+            .main {
+                margin: 0 !important;
+
+                padding: 0 !important;
+            }
+
+            body {
+                background: white !important;
+
+                color: black !important;
+            }
+
+            .card,
+            .stat-card {
+                box-shadow: none !important;
+
+                border: 1px solid #ddd;
+
+                break-inside: avoid;
+            }
+
+            .print-header {
+                display: block !important;
+
+                text-align: center;
+
+                margin-bottom: 25px;
+
+                padding-bottom: 15px;
+
+                border-bottom: 2px solid #990033;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+        }
+
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1100px) {
+
+            .stats-grid {
+                grid-template-columns:
+                    repeat(3, minmax(0, 1fr));
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                transform: translateX(-100%);
+
+                transition: 0.25s;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+
+                padding: 20px;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .topbar {
+                position: relative;
+            }
+
+            .topbar > div:first-child {
+                padding-right: 55px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+        }
+
+
+        @media (max-width: 450px) {
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+    </style>
 </head>
+
+
 <body>
-  <div class="app-layout">
-    <aside class="sidebar">
-      <h2 class="logo">RSA Meat Trading</h2>
-      <nav class="side-nav">
-        <a href="dashboard.html"> Dashboard</a>
-        <a href="orders.html"> Orders</a>
-        <a href="customers.html"> Customers</a>
-        <a href="reports.html" class="active"> Reports</a>
-      </nav>
-      <div class="sidebar-bottom">
-        <a href="index.html" class="logout-link">↩ Logout</a>
-      </div>
+
+
+    <!-- =========================
+         SIDEBAR
+    ========================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            RSA Meat Trading
+        </div>
+
+
+        <nav class="nav">
+
+            <a href="dashboard.html">
+                Dashboard
+            </a>
+
+            <a href="orders.html">
+                Orders
+            </a>
+
+            <a href="create-order.html">
+                Create Order
+            </a>
+
+            <a href="customers.html">
+                Customers
+            </a>
+
+            <a href="reports.html" class="active">
+                Reports
+            </a>
+
+        </nav>
+
+
+        <div class="logout">
+
+            <a href="#" id="logoutBtn">
+                Logout
+            </a>
+
+        </div>
+
     </aside>
 
-    <main class="main-content">
-      <div class="top-header">
-        <h1>Reports & Analytics</h1>
-      </div>
 
-      <!-- Summary Statistics -->
-      <div class="stats-row">
-        <div class="stat-card">
-          <span class="stat-label">Total Orders</span>
-          <span class="stat-value" id="repTotalOrders">0</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Total Revenue</span>
-          <span class="stat-value" id="repTotalRevenue">₱0.00</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Unique Customers</span>
-          <span class="stat-value" id="repCustomers">0</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Completed Orders</span>
-          <span class="stat-value" id="repCompleted">0</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Pending / Active</span>
-          <span class="stat-value" id="repActive">0</span>
-        </div>
-      </div>
+    <!-- =========================
+         MAIN
+    ========================= -->
 
-      <div class="content-grid" style="margin-top: 1.5rem;">
-        <!-- Status Breakdown -->
-        <div class="card">
-          <h3>Order Status Breakdown</h3>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Status</th>
-                <th>Count</th>
-                <th>Percentage</th>
-              </tr>
-            </thead>
-            <tbody id="statusBreakdown">
-              <tr><td colspan="3" style="color:#888; text-align:center;">No data available.</td></tr>
-            </tbody>
-          </table>
+    <main class="main">
+
+
+        <!-- PRINT HEADER -->
+
+        <div class="print-header">
+
+            <h2 style="color:#990033; margin:0;">
+                RSA Meat Trading
+            </h2>
+
+            <p style="margin:5px 0;">
+                Reports & Analytics
+            </p>
+
+            <p style="font-size:13px; color:#666;">
+                Generated:
+                <span id="printDate"></span>
+            </p>
+
         </div>
 
-        <!-- Top Customers -->
-        <div class="card">
-          <h3>Top Customers (Most Orders)</h3>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Orders</th>
-                <th>Total Amount</th>
-              </tr>
-            </thead>
-            <tbody id="topCustomers">
-              <tr><td colspan="3" style="color:#888; text-align:center;">No customer data yet.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
 
-      <!-- Monthly Summary -->
-      <div class="card" style="margin-top: 1.5rem;">
-        <h3>Monthly Summary</h3>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Month</th>
-              <th>Orders</th>
-              <th>Total Sales</th>
-            </tr>
-          </thead>
-          <tbody id="monthlySummary">
-            <tr><td colspan="3" style="color:#888; text-align:center;">No monthly data available.</td></tr>
-          </tbody>
-        </table>
-      </div>
+        <!-- =========================
+             TOP BAR
+        ========================= -->
+
+        <div class="topbar">
+
+            <div>
+
+                <h1>
+                    Reports & Analytics
+                </h1>
+
+                <p>
+                    Sales, orders, customers and product reports
+                </p>
+
+            </div>
+
+
+            <div style="display:flex; gap:10px;">
+
+                <button
+                    class="btn primary-btn print-btn"
+                    id="printBtn"
+                    type="button"
+                >
+                    Print Report
+                </button>
+
+
+                <button
+                    class="menu-toggle"
+                    id="menuToggle"
+                    type="button"
+                >
+                    ☰
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             STATISTICS
+        ========================= -->
+
+        <div class="stats-grid">
+
+
+            <div class="stat-card">
+
+                <span class="stat-label">
+                    Total Orders
+                </span>
+
+                <span
+                    class="stat-value"
+                    id="repTotalOrders"
+                >
+                    0
+                </span>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <span class="stat-label">
+                    Total Revenue
+                </span>
+
+                <span
+                    class="stat-value"
+                    id="repTotalRevenue"
+                >
+                    ₱0.00
+                </span>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <span class="stat-label">
+                    Unique Customers
+                </span>
+
+                <span
+                    class="stat-value"
+                    id="repCustomers"
+                >
+                    0
+                </span>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <span class="stat-label">
+                    Completed Orders
+                </span>
+
+                <span
+                    class="stat-value"
+                    id="repCompleted"
+                >
+                    0
+                </span>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <span class="stat-label">
+                    Pending / Active
+                </span>
+
+                <span
+                    class="stat-value"
+                    id="repActive"
+                >
+                    0
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             STATUS + TOP CUSTOMERS
+        ========================= -->
+
+        <div class="content-grid">
+
+
+            <!-- STATUS -->
+
+            <div class="card">
+
+                <h3>
+                    Order Status Breakdown
+                </h3>
+
+
+                <div class="table-wrapper">
+
+                    <table class="data-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Count
+                                </th>
+
+                                <th>
+                                    Percentage
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="statusBreakdown">
+
+                            <tr>
+
+                                <td
+                                    colspan="3"
+                                    style="
+                                        color:#888;
+                                        text-align:center;
+                                    "
+                                >
+                                    Loading...
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <!-- TOP CUSTOMERS -->
+
+            <div class="card">
+
+                <h3>
+                    Top Customers (Most Orders)
+                </h3>
+
+
+                <div class="table-wrapper">
+
+                    <table class="data-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Customer
+                                </th>
+
+                                <th>
+                                    Orders
+                                </th>
+
+                                <th>
+                                    Total Amount
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="topCustomers">
+
+                            <tr>
+
+                                <td
+                                    colspan="3"
+                                    style="
+                                        color:#888;
+                                        text-align:center;
+                                    "
+                                >
+                                    Loading...
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             PRODUCT SALES
+        ========================= -->
+
+        <div
+            class="card"
+            style="margin-top:20px;"
+        >
+
+            <h3>
+                Product Sales Summary
+            </h3>
+
+
+            <div class="table-wrapper">
+
+                <table class="data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Product Name
+                            </th>
+
+                            <th>
+                                Total Quantity (kg)
+                            </th>
+
+                            <th>
+                                Total Sales
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="productSales">
+
+                        <tr>
+
+                            <td
+                                colspan="3"
+                                style="
+                                    color:#888;
+                                    text-align:center;
+                                "
+                            >
+                                Loading...
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             MONTHLY SUMMARY
+        ========================= -->
+
+        <div
+            class="card"
+            style="margin-top:20px;"
+        >
+
+            <h3>
+                Monthly Summary
+            </h3>
+
+
+            <div class="table-wrapper">
+
+                <table class="data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Month
+                            </th>
+
+                            <th>
+                                Orders
+                            </th>
+
+                            <th>
+                                Total Sales
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="monthlySummary">
+
+                        <tr>
+
+                            <td
+                                colspan="3"
+                                style="
+                                    color:#888;
+                                    text-align:center;
+                                "
+                            >
+                                Loading...
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
     </main>
-  </div>
 
-  <script>
-    // Get orders from storage
-    function getOrders() {
-      return JSON.parse(localStorage.getItem('rsaOrders') || '[]');
-    }
 
-    // Generate all reports
-    function generateReports() {
-      const orders = getOrders();
-      
-      if(orders.length === 0) {
-        document.getElementById('repTotalOrders').textContent = '0';
-        document.getElementById('repTotalRevenue').textContent = '₱0.00';
-        document.getElementById('repCustomers').textContent = '0';
-        document.getElementById('repCompleted').textContent = '0';
-        document.getElementById('repActive').textContent = '0';
-        return;
-      }
+    <!-- =========================
+         SIDEBAR / LOGOUT
+    ========================= -->
 
-      // 1. Summary Stats
-      const totalOrders = orders.length;
-      const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
-      const completed = orders.filter(o => o.status === 'Completed').length;
-      const active = totalOrders - completed;
+    <script>
 
-      // Unique customers
-      const customerMap = {};
-      orders.forEach(o => {
-        const name = (o.company || 'Unknown').toLowerCase().trim();
-        if(!customerMap[name]) {
-          customerMap[name] = { name: o.company, orders: 0, totalAmount: 0 };
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+
+                /* MOBILE MENU */
+
+                const menuToggle =
+                    document.getElementById(
+                        "menuToggle"
+                    );
+
+
+                const sidebar =
+                    document.getElementById(
+                        "sidebar"
+                    );
+
+
+                if (menuToggle) {
+
+                    menuToggle.addEventListener(
+                        "click",
+                        function () {
+
+                            sidebar.classList.toggle(
+                                "open"
+                            );
+
+                        }
+                    );
+
+                }
+
+
+                /* LOGOUT */
+
+                const logoutBtn =
+                    document.getElementById(
+                        "logoutBtn"
+                    );
+
+
+                if (logoutBtn) {
+
+                    logoutBtn.addEventListener(
+                        "click",
+                        async function (e) {
+
+                            e.preventDefault();
+
+
+                            try {
+
+                                await fetch(
+                                    "api/logout.php",
+                                    {
+                                        method: "POST",
+                                        credentials:
+                                            "same-origin"
+                                    }
+                                );
+
+                            } catch (error) {
+
+                                console.error(error);
+
+                            }
+
+
+                            window.location.href =
+                                "index.html";
+
+                        }
+                    );
+
+                }
+
+
+                /* PRINT */
+
+                const printBtn =
+                    document.getElementById(
+                        "printBtn"
+                    );
+
+
+                if (printBtn) {
+
+                    printBtn.addEventListener(
+                        "click",
+                        function () {
+
+                            window.print();
+
+                        }
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
+
+
+    <!-- =========================
+         REPORT FUNCTIONALITY
+    ========================= -->
+
+    <script>
+
+        let reportOrders = [];
+
+
+        async function loadReports() {
+
+            try {
+
+
+                const response =
+                    await fetch(
+                        "api/reports-data.php",
+                        {
+                            credentials:
+                                "same-origin"
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Unable to load reports."
+                    );
+
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                if (!Array.isArray(data)) {
+
+                    throw new Error(
+                        data.message ||
+                        "Invalid report data."
+                    );
+
+                }
+
+
+                reportOrders = data;
+
+
+                generateReports();
+
+
+            } catch (error) {
+
+
+                console.error(
+                    "Reports error:",
+                    error
+                );
+
+
+                showReportError(
+                    error.message
+                );
+
+            }
+
         }
-        customerMap[name].orders++;
-        customerMap[name].totalAmount += o.total || 0;
-      });
-      const uniqueCustomers = Object.keys(customerMap).length;
 
-      // Update summary
-      document.getElementById('repTotalOrders').textContent = totalOrders;
-      document.getElementById('repTotalRevenue').textContent = '₱' + totalRevenue.toFixed(2);
-      document.getElementById('repCustomers').textContent = uniqueCustomers;
-      document.getElementById('repCompleted').textContent = completed;
-      document.getElementById('repActive').textContent = active;
 
-      // 2. Status Breakdown
-      const statusCounts = { Pending:0, Preparing:0, Ready:0, Completed:0 };
-      orders.forEach(o => {
-        if(statusCounts[o.status] !== undefined) statusCounts[o.status]++;
-      });
-      const statusTbody = document.getElementById('statusBreakdown');
-      statusTbody.innerHTML = Object.entries(statusCounts).map(([status, count]) => {
-        const pct = totalOrders > 0 ? ((count / totalOrders) * 100).toFixed(1) : 0;
-        return `<tr>
-          <td><span class="status ${status.toLowerCase()}">${status}</span></td>
-          <td>${count}</td>
-          <td>${pct}%</td>
-        </tr>`;
-      }).join('');
+        function generateReports() {
 
-      // 3. Top Customers
-      const topCust = Object.values(customerMap).sort((a, b) => b.orders - a.orders).slice(0, 5);
-      const custTbody = document.getElementById('topCustomers');
-      if(topCust.length === 0) {
-        custTbody.innerHTML = '<tr><td colspan="3" style="color:#888; text-align:center;">No customer data available.</td></tr>';
-      } else {
-        custTbody.innerHTML = topCust.map(c => `
-          <tr>
-            <td><strong>${c.name}</strong></td>
-            <td>${c.orders}</td>
-            <td>₱${c.totalAmount.toFixed(2)}</td>
-          </tr>
-        `).join('');
-      }
 
-      // 4. Monthly Summary
-      const monthMap = {};
-      orders.forEach(o => {
-        if(!o.rawDate) return;
-        const d = new Date(o.rawDate);
-        const month = d.toLocaleDateString('en-US', { year:'numeric', month:'long' });
-        if(!monthMap[month]) monthMap[month] = { count:0, total:0 };
-        monthMap[month].count++;
-        monthMap[month].total += o.total || 0;
-      });
-      const monthTbody = document.getElementById('monthlySummary');
-      if(Object.keys(monthMap).length === 0) {
-        monthTbody.innerHTML = '<tr><td colspan="3" style="color:#888; text-align:center;">No monthly data available.</td></tr>';
-      } else {
-        monthTbody.innerHTML = Object.entries(monthMap).map(([month, data]) => `
-          <tr>
-            <td>${month}</td>
-            <td>${data.count}</td>
-            <td>₱${data.total.toFixed(2)}</td>
-          </tr>
-        `).join('');
-      }
-    }
+            /* PRINT DATE */
 
-    // Run when page loads
-    document.addEventListener('DOMContentLoaded', generateReports);
-  </script>
+            const printDate =
+                document.getElementById(
+                    "printDate"
+                );
+
+
+            if (printDate) {
+
+                printDate.textContent =
+                    new Date().toLocaleString(
+                        "en-US",
+                        {
+                            dateStyle: "full",
+                            timeStyle: "short"
+                        }
+                    );
+
+            }
+
+
+            const orders =
+                reportOrders;
+
+
+            /* NO ORDERS */
+
+            if (!orders.length) {
+
+                setText(
+                    "repTotalOrders",
+                    "0"
+                );
+
+                setText(
+                    "repTotalRevenue",
+                    "₱0.00"
+                );
+
+                setText(
+                    "repCustomers",
+                    "0"
+                );
+
+                setText(
+                    "repCompleted",
+                    "0"
+                );
+
+                setText(
+                    "repActive",
+                    "0"
+                );
+
+
+                renderEmptyReports();
+
+                return;
+
+            }
+
+
+            /* =========================
+               BASIC TOTALS
+            ========================= */
+
+            const totalOrders =
+                orders.length;
+
+
+            const totalRevenue =
+                orders.reduce(
+                    function (sum, order) {
+
+                        return sum +
+                            Number(
+                                order.total_amount || 0
+                            );
+
+                    },
+                    0
+                );
+
+
+            const completed =
+                orders.filter(
+                    function (order) {
+
+                        return order.status ===
+                            "Completed";
+
+                    }
+                ).length;
+
+
+            const active =
+                totalOrders - completed;
+
+
+            /* =========================
+               CUSTOMER MAP
+            ========================= */
+
+            const customerMap = {};
+
+
+            orders.forEach(
+                function (order) {
+
+
+                    const company =
+                        String(
+                            order.company_name ||
+                            "Unknown Customer"
+                        ).trim();
+
+
+                    const key =
+                        company.toLowerCase();
+
+
+                    if (!customerMap[key]) {
+
+                        customerMap[key] = {
+
+                            name: company,
+
+                            orders: 0,
+
+                            total: 0
+
+                        };
+
+                    }
+
+
+                    customerMap[key].orders++;
+
+
+                    customerMap[key].total +=
+                        Number(
+                            order.total_amount || 0
+                        );
+
+                }
+            );
+
+
+            const uniqueCustomers =
+                Object.keys(
+                    customerMap
+                ).length;
+
+
+            /* =========================
+               DISPLAY TOTALS
+            ========================= */
+
+            setText(
+                "repTotalOrders",
+                totalOrders
+            );
+
+
+            setText(
+                "repTotalRevenue",
+                "₱" +
+                totalRevenue.toFixed(2)
+            );
+
+
+            setText(
+                "repCustomers",
+                uniqueCustomers
+            );
+
+
+            setText(
+                "repCompleted",
+                completed
+            );
+
+
+            setText(
+                "repActive",
+                active
+            );
+
+
+            /* =========================
+               STATUS BREAKDOWN
+            ========================= */
+
+            renderStatusBreakdown(
+                orders,
+                totalOrders
+            );
+
+
+            /* =========================
+               TOP CUSTOMERS
+            ========================= */
+
+            renderTopCustomers(
+                customerMap
+            );
+
+
+            /* =========================
+               PRODUCT SALES
+            ========================= */
+
+            renderProductSales(
+                orders
+            );
+
+
+            /* =========================
+               MONTHLY SUMMARY
+            ========================= */
+
+            renderMonthlySummary(
+                orders
+            );
+
+        }
+
+
+        /* =========================
+           STATUS
+        ========================= */
+
+        function renderStatusBreakdown(
+            orders,
+            totalOrders
+        ) {
+
+
+            const counts = {
+
+                Pending: 0,
+
+                Preparing: 0,
+
+                Ready: 0,
+
+                Completed: 0
+
+            };
+
+
+            orders.forEach(
+                function (order) {
+
+                    if (
+                        counts[
+                            order.status
+                        ] !== undefined
+                    ) {
+
+                        counts[
+                            order.status
+                        ]++;
+
+                    }
+
+                }
+            );
+
+
+            const tbody =
+                document.getElementById(
+                    "statusBreakdown"
+                );
+
+
+            tbody.innerHTML =
+                Object.entries(
+                    counts
+                ).map(
+                    function (
+                        [status, count]
+                    ) {
+
+
+                        const percentage =
+                            totalOrders > 0
+                                ? (
+                                    count /
+                                    totalOrders *
+                                    100
+                                ).toFixed(1)
+                                : "0.0";
+
+
+                        return `
+
+                            <tr>
+
+                                <td>
+
+                                    <span
+                                        class="status status-${status.toLowerCase()}"
+                                    >
+                                        ${escapeHTML(status)}
+                                    </span>
+
+                                </td>
+
+                                <td>
+                                    ${count}
+                                </td>
+
+                                <td>
+                                    ${percentage}%
+                                </td>
+
+                            </tr>
+
+                        `;
+
+                    }
+                ).join("");
+
+        }
+
+
+        /* =========================
+           TOP CUSTOMERS
+        ========================= */
+
+        function renderTopCustomers(
+            customerMap
+        ) {
+
+
+            const customers =
+                Object.values(
+                    customerMap
+                )
+                .sort(
+                    function (a, b) {
+
+                        if (
+                            b.orders !==
+                            a.orders
+                        ) {
+
+                            return b.orders -
+                                a.orders;
+
+                        }
+
+                        return b.total -
+                            a.total;
+
+                    }
+                )
+                .slice(0, 5);
+
+
+            const tbody =
+                document.getElementById(
+                    "topCustomers"
+                );
+
+
+            if (!customers.length) {
+
+                tbody.innerHTML = `
+
+                    <tr>
+
+                        <td
+                            colspan="3"
+                            style="
+                                color:#888;
+                                text-align:center;
+                            "
+                        >
+                            No customer data available.
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+                return;
+
+            }
+
+
+            tbody.innerHTML =
+                customers.map(
+                    function (customer) {
+
+
+                        return `
+
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        ${escapeHTML(
+                                            customer.name
+                                        )}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    ${customer.orders}
+                                </td>
+
+                                <td>
+                                    ₱${customer.total.toFixed(2)}
+                                </td>
+
+                            </tr>
+
+                        `;
+
+                    }
+                ).join("");
+
+        }
+
+
+        /* =========================
+           PRODUCT SALES
+        ========================= */
+
+        function renderProductSales(
+            orders
+        ) {
+
+
+            const productMap = {};
+
+
+            orders.forEach(
+                function (order) {
+
+
+                    const items =
+                        Array.isArray(
+                            order.items
+                        )
+                            ? order.items
+                            : [];
+
+
+                    items.forEach(
+                        function (item) {
+
+
+                            const productName =
+                                String(
+                                    item.product_name ||
+                                    item.product ||
+                                    "Unknown Product"
+                                ).trim();
+
+
+                            if (
+                                !productMap[
+                                    productName
+                                ]
+                            ) {
+
+                                productMap[
+                                    productName
+                                ] = {
+
+                                    quantity: 0,
+
+                                    total: 0
+
+                                };
+
+                            }
+
+
+                            productMap[
+                                productName
+                            ].quantity +=
+                                Number(
+                                    item.quantity ||
+                                    item.qty ||
+                                    0
+                                );
+
+
+                            productMap[
+                                productName
+                            ].total +=
+                                Number(
+                                    item.subtotal ||
+                                    0
+                                );
+
+                        }
+                    );
+
+                }
+            );
+
+
+            const products =
+                Object.entries(
+                    productMap
+                )
+                .sort(
+                    function (a, b) {
+
+                        return b[1].total -
+                            a[1].total;
+
+                    }
+                );
+
+
+            const tbody =
+                document.getElementById(
+                    "productSales"
+                );
+
+
+            if (!products.length) {
+
+                tbody.innerHTML = `
+
+                    <tr>
+
+                        <td
+                            colspan="3"
+                            style="
+                                color:#888;
+                                text-align:center;
+                            "
+                        >
+                            No product sales data.
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+                return;
+
+            }
+
+
+            tbody.innerHTML =
+                products.map(
+                    function (
+                        [name, data]
+                    ) {
+
+
+                        return `
+
+                            <tr>
+
+                                <td>
+                                    ${escapeHTML(name)}
+                                </td>
+
+                                <td>
+                                    ${Number(
+                                        data.quantity
+                                    ).toFixed(2)}
+                                </td>
+
+                                <td>
+                                    ₱${Number(
+                                        data.total
+                                    ).toFixed(2)}
+                                </td>
+
+                            </tr>
+
+                        `;
+
+                    }
+                ).join("");
+
+        }
+
+
+        /* =========================
+           MONTHLY SUMMARY
+        ========================= */
+
+        function renderMonthlySummary(
+            orders
+        ) {
+
+
+            const monthMap = {};
+
+
+            orders.forEach(
+                function (order) {
+
+
+                    const date =
+                        parseDate(
+                            order.order_date
+                        );
+
+
+                    if (!date) {
+                        return;
+                    }
+
+
+                    const year =
+                        date.getFullYear();
+
+
+                    const month =
+                        date.getMonth();
+
+
+                    const key =
+                        `${year}-${String(
+                            month + 1
+                        ).padStart(2, "0")}`;
+
+
+                    if (!monthMap[key]) {
+
+                        monthMap[key] = {
+
+                            year: year,
+
+                            month: month,
+
+                            count: 0,
+
+                            total: 0
+
+                        };
+
+                    }
+
+
+                    monthMap[key].count++;
+
+
+                    monthMap[key].total +=
+                        Number(
+                            order.total_amount ||
+                            0
+                        );
+
+                }
+            );
+
+
+            const months =
+                Object.values(
+                    monthMap
+                )
+                .sort(
+                    function (a, b) {
+
+                        if (
+                            a.year !==
+                            b.year
+                        ) {
+
+                            return b.year -
+                                a.year;
+
+                        }
+
+                        return b.month -
+                            a.month;
+
+                    }
+                );
+
+
+            const tbody =
+                document.getElementById(
+                    "monthlySummary"
+                );
+
+
+            if (!months.length) {
+
+                tbody.innerHTML = `
+
+                    <tr>
+
+                        <td
+                            colspan="3"
+                            style="
+                                color:#888;
+                                text-align:center;
+                            "
+                        >
+                            No monthly data available.
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+                return;
+
+            }
+
+
+            tbody.innerHTML =
+                months.map(
+                    function (data) {
+
+
+                        const date =
+                            new Date(
+                                data.year,
+                                data.month,
+                                1
+                            );
+
+
+                        const monthName =
+                            date.toLocaleDateString(
+                                "en-US",
+                                {
+                                    year: "numeric",
+                                    month: "long"
+                                }
+                            );
+
+
+                        return `
+
+                            <tr>
+
+                                <td>
+                                    ${monthName}
+                                </td>
+
+                                <td>
+                                    ${data.count}
+                                </td>
+
+                                <td>
+                                    ₱${data.total.toFixed(2)}
+                                </td>
+
+                            </tr>
+
+                        `;
+
+                    }
+                ).join("");
+
+        }
+
+
+        /* =========================
+           EMPTY REPORTS
+        ========================= */
+
+        function renderEmptyReports() {
+
+
+            document.getElementById(
+                "statusBreakdown"
+            ).innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="3"
+                        style="
+                            color:#888;
+                            text-align:center;
+                        "
+                    >
+                        No order data available.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+
+            document.getElementById(
+                "topCustomers"
+            ).innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="3"
+                        style="
+                            color:#888;
+                            text-align:center;
+                        "
+                    >
+                        No customer data available.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+
+            document.getElementById(
+                "productSales"
+            ).innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="3"
+                        style="
+                            color:#888;
+                            text-align:center;
+                        "
+                    >
+                        No product sales data.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+
+            document.getElementById(
+                "monthlySummary"
+            ).innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="3"
+                        style="
+                            color:#888;
+                            text-align:center;
+                        "
+                    >
+                        No monthly data available.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+
+
+        /* =========================
+           ERROR
+        ========================= */
+
+        function showReportError(
+            message
+        ) {
+
+
+            const tbody =
+                document.getElementById(
+                    "statusBreakdown"
+                );
+
+
+            if (tbody) {
+
+                tbody.innerHTML = `
+
+                    <tr>
+
+                        <td
+                            colspan="3"
+                            style="
+                                color:#888;
+                                text-align:center;
+                            "
+                        >
+                            ${escapeHTML(message)}
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+
+        }
+
+
+        /* =========================
+           HELPERS
+        ========================= */
+
+        function setText(
+            id,
+            value
+        ) {
+
+
+            const element =
+                document.getElementById(id);
+
+
+            if (element) {
+
+                element.textContent =
+                    value;
+
+            }
+
+        }
+
+
+        function parseDate(
+            value
+        ) {
+
+
+            if (!value) {
+                return null;
+            }
+
+
+            const date =
+                new Date(
+                    String(value)
+                        .includes("T")
+                        ? value
+                        : value + "T00:00:00"
+                );
+
+
+            return isNaN(
+                date.getTime()
+            )
+                ? null
+                : date;
+
+        }
+
+
+        function escapeHTML(
+            value
+        ) {
+
+
+            return String(
+                value ?? ""
+            )
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+        }
+
+
+        /* =========================
+           START
+        ========================= */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                loadReports();
+
+            }
+        );
+
+    </script>
+
 </body>
 </html>
